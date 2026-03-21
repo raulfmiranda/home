@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calculadora ETC/ETA do Sistema Creighton para datação de gestação com base em biomarcadores de fertilidade.">
+  <title>Calculadora ETC / ETA — Sistema Creighton</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 15px;
+      background: #eef2f7;
+      padding: 16px;
+      color: #1e2a38;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.1em;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 14px;
+      color: #1e2a38;
+      line-height: 1.3;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .card-header label {
+      font-size: 0.95em;
+      font-weight: 600;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    input[type="date"] {
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 0.95em;
+      padding: 6px 10px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      color: #1e2a38;
+      background: #f9fafb;
+      flex: 1;
+      min-width: 140px;
+      max-width: 200px;
+    }
+
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #2da891;
+    }
+
+    /* TABLE WRAPPER — scroll horizontal no mobile */
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      min-width: 520px; /* evita colapso em telas pequenas */
+    }
+
+    td {
+      border: 1px solid #e5e7eb;
+      padding: 8px 5px;
+      font-size: 0.82em;
+    }
+
+    /* Cabeçalho de datas */
+    tr.row-dates td {
+      background: #4b5563;
+      color: #f9fafb;
+      font-weight: 600;
+      border-color: #6b7280;
+      padding: 9px 5px;
+      white-space: nowrap;
+    }
+
+    /* Cabeçalho de labels */
+    tr.row-labels td {
+      background: #6b7280;
+      color: #f9fafb;
+      font-weight: 700;
+      border-color: #9ca3af;
+      padding: 7px 5px;
+    }
+
+    tr.row-labels td b {
+      color: #a7f3d0;
+    }
+
+    /* Linhas alternadas */
+    tr.act-row-odd td.clickable,
+    tr.act-row-odd td.row-label-cell,
+    tr.act-row-odd td.remove-cell {
+      background: #f8fafc;
+    }
+
+    tr.act-row-even td.clickable,
+    tr.act-row-even td.row-label-cell,
+    tr.act-row-even td.remove-cell {
+      background: #e8f4f1;
+    }
+
+    td.clickable {
+      cursor: pointer;
+      min-width: 38px;
+      min-height: 38px; /* área de toque maior no mobile */
+      transition: background 0.15s;
+      font-size: 1em;
+      font-weight: 600;
+      color: #0f766e;
+    }
+
+    td.clickable:hover,
+    td.clickable:active {
+      background: #ccfbf1 !important;
+    }
+
+    td.row-label-cell {
+      font-size: 0.95em;
+      font-weight: 700;
+      color: #2da891;
+      padding: 5px 8px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    td.remove-cell {
+      cursor: pointer;
+      color: #dc2626;
+      font-size: 1em;
+      padding: 4px 6px;
+      vertical-align: middle;
+      transition: background 0.15s;
+      min-width: 32px;
+    }
+
+    td.remove-cell:hover,
+    td.remove-cell:active {
+      background: #fee2e2 !important;
+    }
+
+    td.no-border {
+      border: none !important;
+      background: transparent !important;
+    }
+
+    td.header-spacer {
+      background: #4b5563 !important;
+      border: none !important;
+    }
+
+    td.header-spacer-label {
+      background: #6b7280 !important;
+      border: none !important;
+    }
+
+    /* Célula de resultado */
+    td.result-cell {
+      text-align: left;
+      padding: 10px 12px;
+      vertical-align: middle;
+      min-width: 200px;
+      line-height: 1.75;
+      background: #f1f5f9;
+      border-left: 3px solid #cbd5e1;
+    }
+
+    .result-section {
+      margin-bottom: 3px;
+    }
+
+    .result-label {
+      font-size: 0.65em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: block;
+      color: #64748b;
+    }
+
+    .result-value {
+      font-size: 0.9em;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .result-value.highlight-etc {
+      font-weight: 700;
+      color: #0f766e;
+      font-size: 0.95em;
+    }
+
+    .result-value.highlight-eta {
+      font-weight: 700;
+      color: #1d4ed8;
+      font-size: 0.95em;
+    }
+
+    .result-divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 4px 0;
+    }
+
+    .result-placeholder {
+      color: #94a3b8;
+      font-size: 0.82em;
+      font-style: italic;
+    }
+
+    /* Linha "+" */
+    td.add-row-cell {
+      background: #f8fafc;
+      cursor: pointer;
+      color: #2da891;
+      font-weight: 600;
+      font-size: 0.85em;
+      border: 1.5px dashed #2da891;
+      padding: 10px;
+      transition: background 0.15s;
+    }
+
+    td.add-row-cell:hover,
+    td.add-row-cell:active {
+      background: #ecfdf5;
+    }
+
+    /* Botões */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      background: #2da891;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 0.92em;
+      font-weight: 600;
+      flex: 1;
+      min-width: 140px;
+      letter-spacing: 0.01em;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:hover { background: #0f9680; }
+    .btn:active { background: #0d7a6e; }
+
+    .btn-report { background: #3b5ea6; }
+    .btn-report:hover { background: #2d4a8a; }
+    .btn-report:active { background: #243d75; }
+
+    .error {
+      color: #dc2626;
+      margin-top: 8px;
+      font-size: 0.88em;
+    }
+
+    /* Relatório */
+    #report-section {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+
+    #report-section h2 {
+      font-size: 0.95em;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 10px;
+    }
+
+    #report-output {
+      width: 100%;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78em;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      resize: vertical;
+      min-height: 160px;
+      background: #f8fafc;
+      color: #1e2a38;
+      line-height: 1.9;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .report-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-copy {
+      padding: 8px 18px;
+      background: #3b5ea6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 0.88em;
+      font-weight: 600;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-copy:hover { background: #2d4a8a; }
+
+    .copy-msg {
+      font-size: 0.85em;
+      color: #2da891;
+      font-weight: 600;
+      display: none;
+    }
+
+    /* Rodapé */
+    footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.75em;
+      color: #9ca3af;
+      padding-bottom: 16px;
+    }
+
+    /* Responsividade para telas maiores */
+    @media (min-width: 640px) {
+      body { padding: 24px; font-size: 15px; }
+      h1 { font-size: 1.2em; }
+      td { font-size: 0.88em; padding: 8px 7px; }
+      td.result-cell { min-width: 240px; padding: 10px 14px; }
+      #report-output { font-size: 0.88em; }
+    }
+
+    @media (min-width: 1024px) {
+      body { max-width: 1200px; margin: 0 auto; padding: 28px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🌿 Calculadora ETC / ETA — Sistema Creighton</h1>
+
+<div id="container"></div>
+
+<div class="btn-row">
+  <button class="btn" onclick="addCard()">+ Adicionar novo ciclo</button>
+  <button class="btn btn-report" onclick="generateReport()">📋 Gerar relatório</button>
+</div>
+
+<div id="report-section">
+  <h2>Relatório de Resultados</h2>
+  <textarea id="report-output" readonly></textarea>
+  <div class="report-actions">
+    <button class="btn-copy" onclick="copyReport()">Copiar</button>
+    <span class="copy-msg" id="copy-msg">✓ Copiado!</span>
+  </div>
+</div>
+
+<footer>
+  Sistema Creighton — Datação de gestação por biomarcadores de fertilidade
+</footer>
+
+<script>
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const HEADER_REPEAT_INTERVAL = 3;
+let cardCounter = 0;
+let rowCounters = {};
+
+/* ------------------ UTIL ------------------ */
+
+function parseDate(str) {
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function fmtDate(dt) {
+  return dt.toLocaleDateString('pt-BR');
+}
+
+function diffDays(a,b){
+  return Math.round((b-a)/86400000);
+}
+
+function computeETA(date){
+  const base = new Date(date.getFullYear(), date.getMonth() + 9, date.getDate());
+  base.setDate(base.getDate() - 7);
+  return base;
+}
+
+/* ------------------ CREIGHTON MIDPOINT ------------------ */
+
+function getCreightonMidpoint(start, end) {
+  const diff = diffDays(start, end);
+  const total = diff + 1;
+
+  if (total % 2 === 1) {
+    const position = (total + 1) / 2;
+    const result = new Date(start);
+    result.setDate(result.getDate() + (position - 1));
+    return result;
+  } else {
+    const half = total / 2;
+    const lower = new Date(start);
+    lower.setDate(lower.getDate() + (half - 1));
+    const upper = new Date(start);
+    upper.setDate(upper.getDate() + half);
+    return (lower.getDate() % 2 === 0) ? lower : upper;
+  }
+}
+
+/* ------------------ CABEÇALHO ------------------ */
+
+function buildHeaderRows(peak, offsets) {
+  let row1 = `<tr class="row-dates">`;
+  row1 += `<td class="header-spacer"></td>`;
+  offsets.forEach(off => {
+    const d = new Date(peak);
+    d.setDate(d.getDate() + off);
+    row1 += `<td>${fmtDate(d)}</td>`;
+  });
+  row1 += `<td class="header-spacer"></td><td class="header-spacer"></td></tr>`;
+
+  let row2 = `<tr class="row-labels">`;
+  row2 += `<td class="header-spacer-label"></td>`;
+  offsets.forEach(off => {
+    let label = off === 0 ? "P" : (off > 0 ? `+${off}` : `${off}`);
+    row2 += `<td><b>${label}</b></td>`;
+  });
+  row2 += `<td class="header-spacer-label"></td><td class="header-spacer-label"></td></tr>`;
+
+  return row1 + row2;
+}
+
+/* ------------------ GERA TABELA ------------------ */
+
+function generateTable(cardId) {
+  const peakStr = document.getElementById(`peak-${cardId}`).value;
+  if (!peakStr) return;
+
+  const peak = parseDate(peakStr);
+  const offsets = [-4,-3,-2,-1,0,1,2,3];
+
+  rowCounters[cardId] = 0;
+
+  document.getElementById(`table-${cardId}`).innerHTML =
+    `<div class="table-wrapper"><table id="inner-table-${cardId}">
+      <tbody id="tbody-${cardId}">${buildHeaderRows(peak, offsets)}</tbody>
+     </table></div>`;
+
+  addActRow(cardId, peak, offsets);
+}
+
+/* ------------------ ADICIONA LINHA ------------------ */
+
+function addActRow(cardId, peak, offsets) {
+  rowCounters[cardId]++;
+  const rowId = rowCounters[cardId];
+  const label = ALPHABET[(rowId - 1) % 26];
+  const rowClass = rowId % 2 === 0 ? 'act-row-even' : 'act-row-odd';
+
+  const tbody = document.getElementById(`tbody-${cardId}`);
+
+  const existingAddRow = document.getElementById(`add-row-${cardId}`);
+  if (existingAddRow) existingAddRow.remove();
+
+  // Repetir cabeçalho a cada HEADER_REPEAT_INTERVAL linhas
+  if (rowId > 1 && (rowId - 1) % HEADER_REPEAT_INTERVAL === 0) {
+    const tempDiv = document.createElement('tbody');
+    tempDiv.innerHTML = buildHeaderRows(peak, offsets);
+    while (tempDiv.firstChild) tbody.appendChild(tempDiv.firstChild);
+  }
+
+  const tr = document.createElement('tr');
+  tr.id = `act-row-${cardId}-${rowId}`;
+  tr.className = rowClass;
+
+  let cells = `<td class="row-label-cell">${label}</td>`;
+  offsets.forEach((off, i) => {
+    cells += `<td class="clickable" id="cell-${cardId}-${rowId}-${i}" onclick="toggleI(${cardId},${rowId},${i})"></td>`;
+  });
+
+  cells += rowId === 1
+    ? `<td class="no-border"></td>`
+    : `<td class="remove-cell" title="Remover" onclick="removeActRow(${cardId},${rowId})">✕</td>`;
+
+  cells += `<td class="result-cell" id="result-cell-${cardId}-${rowId}">
+              <span class="result-placeholder">Marque as relações para calcular</span>
+            </td>`;
+
+  tr.innerHTML = cells;
+  tbody.appendChild(tr);
+
+  const totalCols = offsets.length + 3;
+  const trAdd = document.createElement('tr');
+  trAdd.id = `add-row-${cardId}`;
+  trAdd.innerHTML = `<td class="add-row-cell" colspan="${totalCols}"
+    onclick="addActRow(${cardId}, new Date(${peak.getTime()}), ${JSON.stringify(offsets)})">
+    + Adicionar novo cálculo
+  </td>`;
+  tbody.appendChild(trAdd);
+}
+
+/* ------------------ TOGGLE / REMOVE ------------------ */
+
+function toggleI(cardId, rowId, i) {
+  const el = document.getElementById(`cell-${cardId}-${rowId}-${i}`);
+  el.textContent = el.textContent === "I" ? "" : "I";
+  runCalc(cardId, rowId);
+}
+
+function removeActRow(cardId, rowId) {
+  const tr = document.getElementById(`act-row-${cardId}-${rowId}`);
+  if (tr) tr.remove();
+}
+
+/* ------------------ COLETA ------------------ */
+
+function getActs(cardId, rowId) {
+  const peakStr = document.getElementById(`peak-${cardId}`).value;
+  const peak = parseDate(peakStr);
+  const offsets = [-4,-3,-2,-1,0,1,2,3];
+
+  let acts = [];
+  offsets.forEach((off, i) => {
+    const cell = document.getElementById(`cell-${cardId}-${rowId}-${i}`);
+    if (cell && cell.textContent === "I") {
+      const d = new Date(peak);
+      d.setDate(d.getDate() + off);
+      acts.push({date: d, offset: off});
+    }
+  });
+  return acts;
+}
+
+/* ------------------ CALC ------------------ */
+
+function calcResult(cardId, rowId) {
+  const peakStr = document.getElementById(`peak-${cardId}`).value;
+  if (!peakStr) return null;
+
+  const peak = parseDate(peakStr);
+  const acts = getActs(cardId, rowId);
+  if (acts.length === 0) return null;
+
+  let etc, intervalStart, intervalEnd;
+
+  if (acts.length > 1) {
+    acts.sort((a,b) => a.date - b.date);
+    const first = acts[0];
+    const last  = acts[acts.length - 1];
+    intervalStart = first.date;
+    intervalEnd   = last.date;
+    etc = getCreightonMidpoint(first.date, last.date);
+  } else {
+    const act = acts[0];
+    if (act.offset < 0) {
+      intervalStart = act.date;
+      intervalEnd   = peak;
+      etc = getCreightonMidpoint(act.date, peak);
+    } else {
+      intervalStart = act.date;
+      intervalEnd   = act.date;
+      etc = act.date;
+    }
+  }
+
+  return {
+    intervalStart, intervalEnd, etc,
+    etaIntervalStart: computeETA(intervalStart),
+    etaIntervalEnd:   computeETA(intervalEnd),
+    eta:              computeETA(etc)
+  };
+}
+
+function runCalc(cardId, rowId) {
+  const resultCell = document.getElementById(`result-cell-${cardId}-${rowId}`);
+  const r = calcResult(cardId, rowId);
+
+  if (!r) {
+    resultCell.innerHTML = `<span class="result-placeholder">Marque as relações para calcular</span>`;
+    return;
+  }
+
+  const same = r.intervalStart.getTime() === r.intervalEnd.getTime();
+  const etcIntervalStr = same
+    ? fmtDate(r.intervalStart)
+    : `${fmtDate(r.intervalStart)} — ${fmtDate(r.intervalEnd)}`;
+  const etaIntervalStr = same
+    ? fmtDate(r.etaIntervalStart)
+    : `${fmtDate(r.etaIntervalStart)} — ${fmtDate(r.etaIntervalEnd)}`;
+
+  resultCell.innerHTML = `
+    <div class="result-section">
+      <span class="result-label">Intervalo do ETC</span>
+      <span class="result-value">${etcIntervalStr}</span>
+    </div>
+    <hr class="result-divider">
+    <div class="result-section">
+      <span class="result-label">ETC</span>
+      <span class="result-value highlight-etc">${fmtDate(r.etc)}</span>
+    </div>
+    <hr class="result-divider">
+    <div class="result-section">
+      <span class="result-label">Intervalo do ETA</span>
+      <span class="result-value">${etaIntervalStr}</span>
+    </div>
+    <hr class="result-divider">
+    <div class="result-section">
+      <span class="result-label">ETA</span>
+      <span class="result-value highlight-eta">${fmtDate(r.eta)}</span>
+    </div>
+  `;
+}
+
+/* ------------------ RELATÓRIO ------------------ */
+
+function generateReport() {
+  const SEP = ' | ';
+  const W = { label: 3, etcInt: 23, etc: 12, etaInt: 23, eta: 12 };
+
+  const col = (str, w) => str.padEnd(w);
+  const line = (a, b, c, d, e) =>
+    `${col(a, W.label)}${SEP}${col(b, W.etcInt)}${SEP}${col(c, W.etc)}${SEP}${col(d, W.etaInt)}${SEP}${e}`;
+
+  const divider = '-'.repeat(W.label + W.etcInt + W.etc + W.etaInt + W.eta + SEP.length * 4);
+
+  const rows = [];
+  rows.push(line('   ', 'Intervalo ETC', 'ETC', 'Intervalo ETA', 'ETA'));
+  rows.push(divider);
+
+  let hasAny = false;
+
+  for (let cardId = 1; cardId <= cardCounter; cardId++) {
+    const peakEl = document.getElementById(`peak-${cardId}`);
+    if (!peakEl || !peakEl.value) continue;
+
+    const maxRows = rowCounters[cardId] || 0;
+    for (let rowId = 1; rowId <= maxRows; rowId++) {
+      const rowEl = document.getElementById(`act-row-${cardId}-${rowId}`);
+      if (!rowEl) continue;
+
+      const label = ALPHABET[(rowId - 1) % 26];
+      const r = calcResult(cardId, rowId);
+      if (!r) continue;
+
+      hasAny = true;
+      const same = r.intervalStart.getTime() === r.intervalEnd.getTime();
+      const etcInt = same ? fmtDate(r.intervalStart) : `${fmtDate(r.intervalStart)} a ${fmtDate(r.intervalEnd)}`;
+      const etaInt = same ? fmtDate(r.etaIntervalStart) : `${fmtDate(r.etaIntervalStart)} a ${fmtDate(r.etaIntervalEnd)}`;
+
+      rows.push(line(label, etcInt, fmtDate(r.etc), etaInt, fmtDate(r.eta)));
+    }
+  }
+
+  if (!hasAny) rows.push('Nenhum resultado calculado.');
+
+  const ta = document.getElementById('report-output');
+  ta.value = rows.join('\n');
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight + 10) + 'px';
+
+  const section = document.getElementById('report-section');
+  section.style.display = 'block';
+  section.scrollIntoView({behavior: 'smooth'});
+}
+
+function copyReport() {
+  const ta = document.getElementById('report-output');
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+
+  // Suporte a clipboard API e fallback para mobile
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(ta.value).then(showCopied);
+  } else {
+    document.execCommand('copy');
+    showCopied();
+  }
+}
+
+function showCopied() {
+  const msg = document.getElementById('copy-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display = 'none', 2000);
+}
+
+/* ------------------ ADICIONAR CICLO ------------------ */
+
+function addCard(){
+  cardCounter++;
+  const id = cardCounter;
+
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id = `card-${id}`;
+
+  div.innerHTML = `
+    <div class="card-header">
+      <label>Dia Pico:</label>
+      <input type="date" id="peak-${id}" onchange="generateTable(${id})">
+    </div>
+    <div id="table-${id}"></div>
+    <div id="err-${id}" class="error"></div>
+  `;
+
+  document.getElementById('container').appendChild(div);
+}
+
+addCard();
+</script>
+
+</body>
+</html>
