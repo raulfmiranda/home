@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calculadora de Mucus Cycle Score (MCS) baseada em seis dias de observações até o dia Pico.">
+  <meta name="theme-color" content="#008080">
+  <title>Calc. MCS — Creighton Tools</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:        #008080;
+      --silver:      #c0c0c0;
+      --silver-dark: #808080;
+      --silver-light:#e8e8e8;
+      --white:       #ffffff;
+      --black:       #000000;
+      --navy:        #000080;
+      --scanline:    rgba(0,0,0,0.05);
+    }
+
+    html, body { min-height: 100vh; }
+
+    body {
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      background-color: var(--teal);
+      background-image: repeating-linear-gradient(
+        0deg,
+        var(--scanline) 0px, var(--scanline) 1px,
+        transparent 1px, transparent 3px
+      );
+      padding: 0 0 50px 0;
+      color: var(--black);
+    }
+
+    /* ── TITLEBAR ── */
+    .window-titlebar {
+      background: linear-gradient(to right, var(--navy), #1084d0);
+      color: var(--white);
+      font-family: 'VT323', monospace;
+      font-size: 1.1em;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid var(--black);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .titlebar-btns { margin-left: auto; }
+
+    .btn-back {
+      font-family: 'VT323', monospace;
+      font-size: 0.95em;
+      background: var(--silver);
+      color: var(--black);
+      border-top: 2px solid var(--white);
+      border-left: 2px solid var(--white);
+      border-right: 2px solid var(--silver-dark);
+      border-bottom: 2px solid var(--silver-dark);
+      padding: 1px 10px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 22px;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .btn-back:hover { background: var(--silver-light); }
+    .btn-back:active {
+      border-top: 2px solid var(--silver-dark);
+      border-left: 2px solid var(--silver-dark);
+      border-right: 2px solid var(--white);
+      border-bottom: 2px solid var(--white);
+    }
+
+    /* ── WINDOW ── */
+    .window-body {
+      margin: 14px 10px;
+      background: var(--silver);
+      border-top: 3px solid var(--white);
+      border-left: 3px solid var(--white);
+      border-right: 3px solid var(--silver-dark);
+      border-bottom: 3px solid var(--silver-dark);
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--silver-light);
+      border-top: 2px solid var(--white);
+      border-left: 2px solid var(--white);
+      border-right: 2px solid var(--silver-dark);
+      border-bottom: 2px solid var(--silver-dark);
+      margin: 12px;
+      padding: 12px;
+    }
+
+    .card-title {
+      font-family: 'VT323', monospace;
+      font-size: 1.05em;
+      color: var(--navy);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--silver-dark);
+      padding-bottom: 4px;
+    }
+
+    .card-subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.78em;
+      color: var(--black);
+      margin-bottom: 8px;
+    }
+
+    /* ── TABLE WRAPPER ── */
+    .table-wrapper {
+      overflow-x: auto;
+      border-top: 2px solid var(--silver-dark);
+      border-left: 2px solid var(--silver-dark);
+      border-right: 2px solid var(--white);
+      border-bottom: 2px solid var(--white);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      min-width: 400px;
+      background: var(--white);
+    }
+
+    th, td {
+      border: 1px solid var(--silver-dark);
+      padding: 5px 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.82em;
+    }
+
+    /* Cabeçalho de dias */
+    thead th {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'VT323', monospace;
+      font-size: 0.95em;
+      letter-spacing: 0.04em;
+    }
+
+    thead th.th-empty {
+      background: var(--silver);
+      border-color: var(--silver-dark);
+    }
+
+    /* Rótulos de linha */
+    tbody th {
+      background: linear-gradient(to bottom, #f8f8f8, #d8d8d8);
+      font-family: 'VT323', monospace;
+      font-size: 0.95em;
+      letter-spacing: 0.03em;
+      text-align: left;
+      padding-left: 8px;
+      white-space: nowrap;
+    }
+
+    /* Input de código */
+    .code-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 4px 2px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.82em;
+      text-align: center;
+      background: var(--white);
+      text-transform: uppercase;
+    }
+
+    .code-input:focus {
+      outline: 1px dotted var(--navy);
+      outline-offset: -2px;
+    }
+
+    /* Linha de pontos */
+    .score-row td {
+      background: #efefef;
+      font-family: 'VT323', monospace;
+      font-size: 1.0em;
+      color: var(--navy);
+    }
+
+    /* ── LINHA DE RESULTADO (3ª linha) ── */
+    .result-row td {
+      background: var(--navy);
+      color: var(--white);
+      border-color: #1a3080;
+      padding: 0;
+    }
+
+    /* Célula de rótulo da linha de resultado */
+    .result-row th {
+      background: #1a1a6e;
+      color: var(--white);
+      font-family: 'VT323', monospace;
+      font-size: 0.95em;
+      letter-spacing: 0.03em;
+      text-align: left;
+      padding-left: 8px;
+      border-color: #1a3080;
+      white-space: nowrap;
+    }
+
+    /* Célula que contém os três valores agregados (colspan=6) */
+    .result-merged {
+      padding: 5px 10px !important;
+      text-align: left !important;
+    }
+
+    .result-inner {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .result-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .result-item-label {
+      font-family: 'VT323', monospace;
+      font-size: 0.72em;
+      color: #a0c4ff;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .result-item-value {
+      font-family: 'VT323', monospace;
+      font-size: 1.05em;
+      color: var(--white);
+      letter-spacing: 0.03em;
+    }
+
+    .result-item-value.highlight-avg {
+      color: #7fffb2;
+      font-size: 1.1em;
+    }
+
+    .result-item-value.highlight-cls {
+      color: #ffe566;
+    }
+
+    /* ── BOTÕES ── */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'VT323', monospace;
+      font-size: 1.05em;
+      letter-spacing: 0.04em;
+      background: var(--silver);
+      color: var(--black);
+      border-top: 3px solid var(--white);
+      border-left: 3px solid var(--white);
+      border-right: 3px solid var(--silver-dark);
+      border-bottom: 3px solid var(--silver-dark);
+      padding: 5px 14px;
+      cursor: pointer;
+      flex: 1;
+      min-width: 120px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:hover { background: var(--silver-light); }
+    .btn:active {
+      border-top: 3px solid var(--silver-dark);
+      border-left: 3px solid var(--silver-dark);
+      border-right: 3px solid var(--white);
+      border-bottom: 3px solid var(--white);
+    }
+
+    .btn-report { color: var(--navy); }
+    .btn-reset  { color: #880000; }
+
+    /* ── RELATÓRIO ── */
+    .report-card {
+      display: none;
+      background: var(--silver-light);
+      border-top: 2px solid var(--white);
+      border-left: 2px solid var(--white);
+      border-right: 2px solid var(--silver-dark);
+      border-bottom: 2px solid var(--silver-dark);
+      margin: 12px;
+      padding: 12px;
+    }
+
+    .report-card-title {
+      font-family: 'VT323', monospace;
+      font-size: 1.05em;
+      color: var(--navy);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--silver-dark);
+      padding-bottom: 4px;
+    }
+
+    #report-output {
+      width: 100%;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.78em;
+      border-top: 2px solid var(--silver-dark);
+      border-left: 2px solid var(--silver-dark);
+      border-right: 2px solid var(--white);
+      border-bottom: 2px solid var(--white);
+      padding: 10px;
+      resize: vertical;
+      min-height: 150px;
+      background: var(--white);
+      color: var(--black);
+      line-height: 1.9;
+      overflow-x: auto;
+      white-space: pre;
+      border-radius: 0;
+    }
+
+    .report-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-copy {
+      font-family: 'VT323', monospace;
+      font-size: 1em;
+      letter-spacing: 0.04em;
+      background: var(--silver);
+      color: var(--black);
+      border-top: 2px solid var(--white);
+      border-left: 2px solid var(--white);
+      border-right: 2px solid var(--silver-dark);
+      border-bottom: 2px solid var(--silver-dark);
+      padding: 3px 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-copy:hover { background: var(--silver-light); }
+    .btn-copy:active {
+      border-top: 2px solid var(--silver-dark);
+      border-left: 2px solid var(--silver-dark);
+      border-right: 2px solid var(--white);
+      border-bottom: 2px solid var(--white);
+    }
+
+    .copy-msg {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8em;
+      color: #006600;
+      display: none;
+    }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 26px;
+      background: var(--silver);
+      border-top: 2px solid var(--white);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 6px;
+      z-index: 100;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72em;
+    }
+
+    .status-cell {
+      border-top: 1px solid var(--silver-dark);
+      border-left: 1px solid var(--silver-dark);
+      border-right: 1px solid var(--white);
+      border-bottom: 1px solid var(--white);
+      padding: 1px 8px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-clock { margin-left: auto; }
+
+    @media (min-width: 640px) {
+      .window-body { margin: 16px; }
+      th, td { font-size: 0.88em; padding: 6px; }
+      #report-output { font-size: 0.85em; }
+    }
+
+    @media (min-width: 1024px) {
+      body { max-width: 1200px; margin: 0 auto; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="window-titlebar">
+  <span>🧪</span>
+  <span>Calculadora Mucus Cycle Score (MCS)</span>
+  <div class="titlebar-btns">
+    <a class="btn-back" href="index.html">◀ Início</a>
+  </div>
+</div>
+
+<div class="window-body">
+  <div id="container"></div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="addCycle()">+ Novo cálculo</button>
+    <button class="btn btn-report" onclick="generateReport()">▶ Gerar relatório</button>
+  </div>
+
+  <div class="report-card" id="report-section">
+    <div class="report-card-title">📋 Relatório de Mucus Cycle Score</div>
+    <textarea id="report-output" readonly></textarea>
+    <div class="report-actions">
+      <button class="btn-copy" onclick="copyReport()">Copiar</button>
+      <span class="copy-msg" id="copy-msg">✓ Copiado!</span>
+    </div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div class="status-cell">Creighton Tools v1.0</div>
+  <div class="status-cell">Calc. MCS</div>
+  <div class="status-cell status-clock" id="status-clock"></div>
+</div>
+
+<script>
+const DAYS = ['P-5','P-4','P-3','P-2','P-1','P'];
+let cycleCounter = 0;
+
+/* ── Relógio ── */
+function updateClock() {
+  const n  = new Date();
+  const hh = String(n.getHours()).padStart(2,'0');
+  const mm = String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('status-clock').textContent = `${hh}:${mm}`;
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+/* ──────────────────────────────────────────────
+   PONTUAÇÃO DE UM CÓDIGO DE MUCO
+
+   Sem muco → 0:   0, 2, 2W, 4
+   Lubrificação pura → 8:  10WL, 10DL, 10SL
+
+   Consistência:  10 → 4  |  6,8,G,P → 2  |  outros → 0
+   Cor:           K  → 4  |  C,Y     → 2  |  B      → 0
+   Sensação:      L  → 8  |  sem L   → 2
+────────────────────────────────────────────── */
+function scoreMucus(raw) {
+  const code = (raw || '').trim().toUpperCase();
+
+  if (!code || code === '0' || code === '2' || code === '2W' || code === '4') return 0;
+  if (code === '10WL' || code === '10DL' || code === '10SL') return 8;
+
+  let pts = 0;
+
+  // Consistência
+  if (code.includes('10')) {
+    pts += 4;
+  } else if (
+    code.includes('6') || code.includes('8') ||
+    code.includes('G') || code.includes('P')
+  ) {
+    pts += 2;
+  }
+
+  // Cor
+  if (code.includes('K')) {
+    pts += 4;
+  } else if (code.includes('C') || code.includes('Y')) {
+    pts += 2;
+  }
+
+  // Sensação
+  pts += code.includes('L') ? 8 : 2;
+
+  return pts;
+}
+
+/* ── Classificação ── */
+function classifyMCS(avg) {
+  if (avg === 0)                  return 'Seco';
+  if (avg >= 9.1 && avg <= 16.0) return 'Normal';
+  if (avg >= 7.6 && avg <= 9.0)  return 'Médio Normal';
+  if (avg >= 5.7 && avg <= 7.5)  return 'Médio Limitado';
+  if (avg >  0.0 && avg <= 5.6)  return 'Limitado';
+  return 'Indeterminado';
+}
+
+/* ── Atualiza pontuação e linha de resultado ── */
+function updateCycleResult(cycleId) {
+  let total  = 0;
+  let hasAny = false;
+
+  for (let i = 0; i < 6; i++) {
+    const input = document.getElementById(`code-${cycleId}-${i}`);
+    const val   = input ? input.value.trim() : '';
+    const pts   = scoreMucus(val);
+    total += pts;
+    if (val) hasAny = true;
+
+    const cell = document.getElementById(`day-score-${cycleId}-${i}`);
+    if (cell) cell.textContent = val ? pts : '';
+  }
+
+  const merged = document.getElementById(`result-merged-${cycleId}`);
+  if (!merged) return;
+
+  if (!hasAny) {
+    merged.innerHTML = `
+      <div class="result-inner">
+        <div class="result-item">
+          <span class="result-item-label">Resultado</span>
+          <span class="result-item-value">—</span>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const avg    = total / 6;
+  const avgStr = avg.toFixed(1).replace('.', ',');
+  const cls    = classifyMCS(avg);
+
+  merged.innerHTML = `
+    <div class="result-inner">
+      <div class="result-item">
+        <span class="result-item-label">Soma</span>
+        <span class="result-item-value">${total}</span>
+      </div>
+      <div class="result-item">
+        <span class="result-item-label">Média (MCS)</span>
+        <span class="result-item-value highlight-avg">${avgStr}</span>
+      </div>
+      <div class="result-item">
+        <span class="result-item-label">Classificação</span>
+        <span class="result-item-value highlight-cls">${cls}</span>
+      </div>
+    </div>`;
+}
+
+/* ── Resetar ciclo ── */
+function resetCycle(cycleId) {
+  for (let i = 0; i < 6; i++) {
+    const input = document.getElementById(`code-${cycleId}-${i}`);
+    if (input) input.value = '';
+    const cell = document.getElementById(`day-score-${cycleId}-${i}`);
+    if (cell) cell.textContent = '';
+  }
+  const merged = document.getElementById(`result-merged-${cycleId}`);
+  if (merged) {
+    merged.innerHTML = `
+      <div class="result-inner">
+        <div class="result-item">
+          <span class="result-item-label">Resultado</span>
+          <span class="result-item-value">—</span>
+        </div>
+      </div>`;
+  }
+}
+
+/* ── Adiciona novo ciclo ── */
+function addCycle() {
+  cycleCounter++;
+  const id  = cycleCounter;
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id        = `cycle-${id}`;
+
+  div.innerHTML = `
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ Ciclo MCS ${id}</span>
+      <button class="btn btn-reset"
+              style="flex:0;min-width:auto;font-size:0.88em;padding:2px 10px;border-width:2px;"
+              onclick="resetCycle(${id})"
+              title="Limpar todos os códigos deste ciclo">
+        ↺ Resetar
+      </button>
+    </div>
+    <div class="card-subtitle">
+      Códigos de muco dos seis dias até o Dia Pico (P).
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-empty"></th>
+            ${DAYS.map(d => `<th>${d}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Linha 1: input de código -->
+          <tr>
+            <th>Código</th>
+            ${DAYS.map((_,i) => `
+              <td>
+                <input class="code-input"
+                       id="code-${id}-${i}"
+                       oninput="updateCycleResult(${id})"
+                       placeholder="—"
+                       maxlength="8">
+              </td>`).join('')}
+          </tr>
+          <!-- Linha 2: pontuação diária -->
+          <tr class="score-row">
+            <th>Pontos</th>
+            ${DAYS.map((_,i) =>
+              `<td id="day-score-${id}-${i}"></td>`).join('')}
+          </tr>
+          <!-- Linha 3: resultado agregado (colspan=6) -->
+          <tr class="result-row">
+            <th>MCS</th>
+            <td class="result-merged" colspan="6" id="result-merged-${id}">
+              <div class="result-inner">
+                <div class="result-item">
+                  <span class="result-item-label">Resultado</span>
+                  <span class="result-item-value">—</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('container').appendChild(div);
+}
+
+/* ── Relatório ── */
+function generateReport() {
+  const header  = 'Ciclo | P-5   P-4   P-3   P-2   P-1   P     | Soma  | Média  | Classe';
+  const divider = '-'.repeat(header.length);
+  const rows    = [header, divider];
+  let hasAny    = false;
+
+  for (let id = 1; id <= cycleCounter; id++) {
+    if (!document.getElementById(`cycle-${id}`)) continue;
+
+    const codes = Array.from({length: 6}, (_, i) => {
+      const v = document.getElementById(`code-${id}-${i}`).value.trim().toUpperCase();
+      return v || '--';
+    });
+
+    if (codes.every(c => c === '--')) continue;
+    hasAny = true;
+
+    let total = 0;
+    codes.forEach(c => { total += scoreMucus(c === '--' ? '' : c); });
+
+    const avg = (total / 6).toFixed(1);
+    const cls = classifyMCS(parseFloat(avg));
+    const col = (s, w) => String(s).padEnd(w);
+
+    rows.push(
+      `${col(id,5)} | ${codes.map(c => col(c,5)).join(' ')} | ${col(total,5)} | ${col(avg,6)} | ${cls}`
+    );
+  }
+
+  if (!hasAny) rows.push('Nenhum ciclo com códigos preenchidos.');
+
+  const ta = document.getElementById('report-output');
+  ta.value = rows.join('\n');
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight + 10) + 'px';
+
+  const section = document.getElementById('report-section');
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ── Copiar ── */
+function copyReport() {
+  const ta = document.getElementById('report-output');
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  const showMsg = () => {
+    const m = document.getElementById('copy-msg');
+    m.style.display = 'inline';
+    setTimeout(() => m.style.display = 'none', 2000);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(ta.value).then(showMsg).catch(() => {
+      document.execCommand('copy'); showMsg();
+    });
+  } else {
+    document.execCommand('copy'); showMsg();
+  }
+}
+
+addCycle();
+</script>
+</body>
+</html>

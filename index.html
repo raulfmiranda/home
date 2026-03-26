@@ -10,10 +10,8 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
 
-    /* ── RESET ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── VARIÁVEIS ── */
     :root {
       --teal:        #008080;
       --teal-dark:   #005f5f;
@@ -28,29 +26,22 @@
       --scanline:    rgba(0,0,0,0.06);
     }
 
-    /* ── BODY / DESKTOP ── */
-    html, body {
-      height: 100%;
-      min-height: 100vh;
-    }
+    html, body { height: 100%; min-height: 100vh; }
 
     body {
       font-family: 'Share Tech Mono', 'Courier New', monospace;
       background-color: var(--teal);
-      background-image:
-        repeating-linear-gradient(
-          0deg,
-          var(--scanline) 0px,
-          var(--scanline) 1px,
-          transparent 1px,
-          transparent 3px
-        );
+      background-image: repeating-linear-gradient(
+        0deg,
+        var(--scanline) 0px, var(--scanline) 1px,
+        transparent 1px, transparent 3px
+      );
       display: flex;
       flex-direction: column;
       user-select: none;
     }
 
-    /* ── BARRA DE TÍTULO DO DESKTOP ── */
+    /* ── BARRA DE TÍTULO ── */
     .desktop-bar {
       background: linear-gradient(to right, var(--navy), #1084d0);
       color: var(--white);
@@ -65,9 +56,7 @@
       flex-shrink: 0;
     }
 
-    .desktop-bar .bar-icon {
-      font-size: 1.2em;
-    }
+    .desktop-bar .bar-icon { font-size: 1.2em; }
 
     .desktop-bar .bar-clock {
       margin-left: auto;
@@ -112,7 +101,6 @@
       filter: brightness(1.3);
     }
 
-    /* Caixa do ícone — estilo pixel art */
     .icon-box {
       width: 52px;
       height: 52px;
@@ -129,7 +117,6 @@
       image-rendering: pixelated;
     }
 
-    /* Ponto de luz no canto — detalhe retrô */
     .icon-box::after {
       content: '';
       position: absolute;
@@ -140,7 +127,6 @@
       background: rgba(255,255,255,0.7);
     }
 
-    /* Rótulo do ícone */
     .icon-label {
       margin-top: 5px;
       font-family: 'VT323', monospace;
@@ -153,7 +139,7 @@
       max-width: 76px;
     }
 
-    /* ── TOOLTIP retrô ── */
+    /* ── TOOLTIP ── */
     .tooltip {
       display: none;
       position: fixed;
@@ -173,12 +159,10 @@
       box-shadow: 2px 2px 0 var(--black);
     }
 
-    /* ── BARRA DE TAREFAS (rodapé) ── */
+    /* ── BARRA DE TAREFAS ── */
     .taskbar {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       height: 36px;
       background: var(--silver);
       border-top: 2px solid var(--white);
@@ -189,7 +173,6 @@
       z-index: 100;
     }
 
-    /* Botão START */
     .btn-start {
       font-family: 'VT323', monospace;
       font-size: 1.05em;
@@ -216,7 +199,6 @@
       border-bottom: 2px solid var(--white);
     }
 
-    /* Separador vertical na taskbar */
     .taskbar-sep {
       width: 2px;
       height: 22px;
@@ -225,7 +207,6 @@
       margin: 0 2px;
     }
 
-    /* Relógio na taskbar */
     .taskbar-clock {
       margin-left: auto;
       font-family: 'Share Tech Mono', monospace;
@@ -261,12 +242,9 @@
 
     .start-menu.open { display: block; }
 
-    /* Barra lateral do menu */
     .start-menu-sidebar {
       position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
+      left: 0; top: 0; bottom: 0;
       width: 28px;
       background: linear-gradient(to top, var(--navy), #1084d0);
       display: flex;
@@ -286,10 +264,7 @@
       text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
     }
 
-    .start-menu-items {
-      margin-left: 28px;
-      padding: 4px 0;
-    }
+    .start-menu-items { margin-left: 28px; padding: 4px 0; }
 
     .start-menu-item {
       display: flex;
@@ -329,21 +304,19 @@
 
 <body>
 
-<!-- BARRA SUPERIOR -->
 <div class="desktop-bar">
   <span class="bar-icon">🖥</span>
   <span>Creighton Tools v1.0</span>
   <span class="bar-clock" id="top-clock"></span>
 </div>
 
-<!-- ÁREA DO DESKTOP -->
 <div class="desktop" id="desktop" onclick="closeStartMenu(event)">
 
-  <!-- ÍCONE: Calculadora ETC/ETA -->
+  <!-- Ícone: Calculadora ETC/ETA -->
   <a class="icon-wrapper"
      href="etc-eta.html"
      tabindex="0"
-     aria-label="Calculadora ETC/ETA — Calcula a Estimativa do Tempo de Concepção e a data provável do parto pelo Sistema Creighton"
+     aria-label="Calculadora ETC/ETA"
      onmouseenter="showTooltip(event, this)"
      onmouseleave="hideTooltip()"
      onfocus="showTooltip(event, this)"
@@ -352,12 +325,23 @@
     <span class="icon-label">Calc. ETC/ETA</span>
   </a>
 
+  <!-- Ícone: Calculadora MCS -->
+  <a class="icon-wrapper"
+     href="mcs.html"
+     tabindex="0"
+     aria-label="Calculadora MCS"
+     onmouseenter="showTooltip(event, this)"
+     onmouseleave="hideTooltip()"
+     onfocus="showTooltip(event, this)"
+     onblur="hideTooltip()">
+    <div class="icon-box">🧪</div>
+    <span class="icon-label">Calc. MCS</span>
+  </a>
+
 </div>
 
-<!-- TOOLTIP -->
 <div class="tooltip" id="tooltip"></div>
 
-<!-- BARRA DE TAREFAS -->
 <div class="taskbar">
   <button class="btn-start" onclick="toggleStartMenu(event)">
     <span>⊞</span> Início
@@ -366,7 +350,6 @@
   <div class="taskbar-clock" id="taskbar-clock"></div>
 </div>
 
-<!-- MENU START -->
 <div class="start-menu" id="start-menu">
   <div class="start-menu-sidebar">
     <span>Creighton Tools</span>
@@ -374,6 +357,9 @@
   <div class="start-menu-items">
     <a class="start-menu-item" href="etc-eta.html">
       <span>🗓️</span> Calc. ETC / ETA
+    </a>
+    <a class="start-menu-item" href="mcs.html">
+      <span>🧪</span> Calc. MCS
     </a>
     <hr class="start-menu-divider">
     <div class="start-menu-item" onclick="closeStartMenu()">
@@ -397,16 +383,17 @@
 
   /* ── TOOLTIP ── */
   const DESCRIPTIONS = {
-    'Calc. ETC/ETA': 'Calcula ETC e ETA pelo Sistema Creighton com base nas relações sexuais e no Dia Pico.'
+    'Calc. ETC/ETA': 'Calcula ETC e ETA pelo Sistema Creighton com base nas relações sexuais e no Dia Pico.',
+    'Calc. MCS':     'Calcula o Mucus Cycle Score (MCS) a partir de seis dias de descrições de muco cervical até o Dia Pico.'
   };
 
   function showTooltip(event, el) {
-    const label   = el.querySelector('.icon-label').textContent.trim();
-    const desc    = DESCRIPTIONS[label] || '';
+    const label = el.querySelector('.icon-label').textContent.trim();
+    const desc  = DESCRIPTIONS[label] || '';
     if (!desc) return;
 
     const tip = document.getElementById('tooltip');
-    tip.textContent  = desc;
+    tip.textContent   = desc;
     tip.style.display = 'block';
     positionTooltip(event);
   }
@@ -415,13 +402,10 @@
     const tip = document.getElementById('tooltip');
     const x   = event.clientX + 14;
     const y   = event.clientY + 14;
-    const W   = window.innerWidth;
-    const H   = window.innerHeight;
     const tw  = tip.offsetWidth;
     const th  = tip.offsetHeight;
-
-    tip.style.left = (x + tw > W ? W - tw - 8 : x) + 'px';
-    tip.style.top  = (y + th > H ? y - th - 20 : y) + 'px';
+    tip.style.left = (x + tw > window.innerWidth  ? window.innerWidth  - tw - 8 : x) + 'px';
+    tip.style.top  = (y + th > window.innerHeight ? y - th - 20 : y) + 'px';
   }
 
   function hideTooltip() {
