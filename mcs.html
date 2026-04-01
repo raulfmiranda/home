@@ -113,6 +113,9 @@
       letter-spacing: 0.05em;
       border-bottom: 1px solid var(--silver-dark);
       padding-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .card-subtitle {
@@ -122,7 +125,7 @@
       margin-bottom: 8px;
     }
 
-    /* ── TABLE WRAPPER ── */
+    /* ── TABLE WRAPPER (desktop) ── */
     .table-wrapper {
       overflow-x: auto;
       border-top: 2px solid var(--silver-dark);
@@ -132,23 +135,28 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    table {
+    /* ── TABLE HORIZONTAL (desktop: padrão) ── */
+    .tbl-horiz {
+      display: block;
+    }
+
+    .tbl-horiz table {
       width: 100%;
       border-collapse: collapse;
       text-align: center;
-      min-width: 400px;
+      min-width: 420px;
       background: var(--white);
     }
 
-    th, td {
+    .tbl-horiz th,
+    .tbl-horiz td {
       border: 1px solid var(--silver-dark);
       padding: 5px 4px;
       font-family: 'Share Tech Mono', monospace;
       font-size: 0.82em;
     }
 
-    /* Cabeçalho de dias */
-    thead th {
+    .tbl-horiz thead th {
       background: var(--navy);
       color: var(--white);
       font-family: 'VT323', monospace;
@@ -156,13 +164,12 @@
       letter-spacing: 0.04em;
     }
 
-    thead th.th-empty {
+    .tbl-horiz thead th.th-empty {
       background: var(--silver);
       border-color: var(--silver-dark);
     }
 
-    /* Rótulos de linha */
-    tbody th {
+    .tbl-horiz tbody th {
       background: linear-gradient(to bottom, #f8f8f8, #d8d8d8);
       font-family: 'VT323', monospace;
       font-size: 0.95em;
@@ -172,7 +179,104 @@
       white-space: nowrap;
     }
 
-    /* Input de código */
+    .tbl-horiz .score-row td {
+      background: #efefef;
+      font-family: 'VT323', monospace;
+      font-size: 1.0em;
+      color: var(--navy);
+    }
+
+    .tbl-horiz .result-row th {
+      background: #1a1a6e;
+      color: var(--white);
+      font-family: 'VT323', monospace;
+      font-size: 0.95em;
+      letter-spacing: 0.03em;
+      text-align: left;
+      padding-left: 8px;
+      border-color: #1a3080;
+      white-space: nowrap;
+    }
+
+    .tbl-horiz .result-row td {
+      background: var(--navy);
+      border-color: #1a3080;
+      padding: 5px 10px;
+      text-align: left;
+    }
+
+    /* ── TABLE VERTICAL (mobile) ── */
+    .tbl-vert {
+      display: none;
+      background: var(--white);
+    }
+
+    .tbl-vert table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+    }
+
+    .tbl-vert th,
+    .tbl-vert td {
+      border: 1px solid var(--silver-dark);
+      padding: 5px 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.82em;
+    }
+
+    /* Linha de cabeçalho das colunas (Dia / Código / Pontos) */
+    .tbl-vert thead th {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'VT323', monospace;
+      font-size: 0.95em;
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+
+    /* Célula de dia (P-5, P-4…) na coluna esquerda */
+    .tbl-vert .day-cell {
+      background: linear-gradient(to right, #1a1a6e, var(--navy));
+      color: var(--white);
+      font-family: 'VT323', monospace;
+      font-size: 0.95em;
+      letter-spacing: 0.04em;
+      text-align: center;
+      white-space: nowrap;
+      width: 52px;
+    }
+
+    /* Célula de pontuação */
+    .tbl-vert .pts-cell {
+      background: #efefef;
+      font-family: 'VT323', monospace;
+      font-size: 1.0em;
+      color: var(--navy);
+      text-align: center;
+      width: 48px;
+    }
+
+    /* Linha de resultado (vertical) */
+    .tbl-vert .result-row-v th {
+      background: #1a1a6e;
+      color: var(--white);
+      font-family: 'VT323', monospace;
+      font-size: 0.9em;
+      letter-spacing: 0.04em;
+      text-align: center;
+      border-color: #1a3080;
+    }
+
+    .tbl-vert .result-row-v td {
+      background: var(--navy);
+      border-color: #1a3080;
+      padding: 6px 8px;
+      text-align: left;
+      colspan: 2;
+    }
+
+    /* ── INPUT DE CÓDIGO ── */
     .code-input {
       width: 100%;
       border: none;
@@ -190,41 +294,7 @@
       outline-offset: -2px;
     }
 
-    /* Linha de pontos */
-    .score-row td {
-      background: #efefef;
-      font-family: 'VT323', monospace;
-      font-size: 1.0em;
-      color: var(--navy);
-    }
-
-    /* ── LINHA DE RESULTADO (3ª linha) ── */
-    .result-row td {
-      background: var(--navy);
-      color: var(--white);
-      border-color: #1a3080;
-      padding: 0;
-    }
-
-    /* Célula de rótulo da linha de resultado */
-    .result-row th {
-      background: #1a1a6e;
-      color: var(--white);
-      font-family: 'VT323', monospace;
-      font-size: 0.95em;
-      letter-spacing: 0.03em;
-      text-align: left;
-      padding-left: 8px;
-      border-color: #1a3080;
-      white-space: nowrap;
-    }
-
-    /* Célula que contém os três valores agregados (colspan=6) */
-    .result-merged {
-      padding: 5px 10px !important;
-      text-align: left !important;
-    }
-
+    /* ── RESULTADO INLINE (dentro da tabela) ── */
     .result-inner {
       display: flex;
       align-items: center;
@@ -253,14 +323,8 @@
       letter-spacing: 0.03em;
     }
 
-    .result-item-value.highlight-avg {
-      color: #7fffb2;
-      font-size: 1.1em;
-    }
-
-    .result-item-value.highlight-cls {
-      color: #ffe566;
-    }
+    .result-item-value.hi-avg { color: #7fffb2; font-size: 1.1em; }
+    .result-item-value.hi-cls { color: #ffe566; }
 
     /* ── BOTÕES ── */
     .btn-row {
@@ -283,7 +347,7 @@
       padding: 5px 14px;
       cursor: pointer;
       flex: 1;
-      min-width: 120px;
+      min-width: 110px;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -296,7 +360,14 @@
     }
 
     .btn-report { color: var(--navy); }
-    .btn-reset  { color: #880000; }
+    .btn-reset  {
+      flex: 0;
+      min-width: auto;
+      font-size: 0.88em;
+      padding: 2px 10px;
+      border-width: 2px;
+      color: #880000;
+    }
 
     /* ── RELATÓRIO ── */
     .report-card {
@@ -406,10 +477,20 @@
 
     .status-clock { margin-left: auto; }
 
-    @media (min-width: 640px) {
+    /* ── RESPONSIVO ── */
+
+    /* Desktop: tabela horizontal visível, vertical oculta */
+    @media (min-width: 541px) {
       .window-body { margin: 16px; }
-      th, td { font-size: 0.88em; padding: 6px; }
+      .tbl-horiz th, .tbl-horiz td { font-size: 0.88em; padding: 6px; }
       #report-output { font-size: 0.85em; }
+    }
+
+    /* Mobile: inverte — mostra vertical, oculta horizontal */
+    @media (max-width: 540px) {
+      .tbl-horiz { display: none; }
+      .tbl-vert  { display: block; }
+      .table-wrapper { min-width: 0; }
     }
 
     @media (min-width: 1024px) {
@@ -466,16 +547,34 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 10000);
 
-/* ──────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────────
    PONTUAÇÃO DE UM CÓDIGO DE MUCO
 
-   Sem muco → 0:   0, 2, 2W, 4
-   Lubrificação pura → 8:  10WL, 10DL, 10SL
+   Sem muco → 0:         0, 2, 2W, 4
+   Lubrificação pura→8:  10WL, 10DL, 10SL
 
-   Consistência:  10 → 4  |  6,8,G,P → 2  |  outros → 0
-   Cor:           K  → 4  |  C,Y     → 2  |  B      → 0
-   Sensação:      L  → 8  |  sem L   → 2
-────────────────────────────────────────────── */
+   Consistência:
+     10          → 4 pts
+     6,8,G,P     → 2 pts  (P = aspecto pastoso/cremoso)
+     outros      → 0 pts
+
+   Cor:
+     K           → 4 pts
+     C ou Y      → 2 pts  (APENAS se P não estiver presente;
+                            P absorve C/Y pois ambos descrevem
+                            o mesmo critério de opacidade)
+     B           → 0 pts
+
+   Sensação:
+     contém L    → 8 pts
+     sem L       → 2 pts  (muco real não-lubrificante)
+
+   Exemplos validados:
+     6PC   = 2(P-cons) + 0(C cancelado por P) + 2(sem L) = 4
+     6PCL  = 2(P-cons) + 0(C cancelado por P) + 8(L)    = 10
+     8CK   = 2(8-cons) + 4(K-cor)             + 2(sem L) = 8
+     10KL  = 4(10-cons)+ 4(K-cor)             + 8(L)    = 16
+────────────────────────────────────────────────────────── */
 function scoreMucus(raw) {
   const code = (raw || '').trim().toUpperCase();
 
@@ -484,7 +583,7 @@ function scoreMucus(raw) {
 
   let pts = 0;
 
-  // Consistência
+  // 1. Consistência
   if (code.includes('10')) {
     pts += 4;
   } else if (
@@ -494,14 +593,16 @@ function scoreMucus(raw) {
     pts += 2;
   }
 
-  // Cor
+  // 2. Cor
   if (code.includes('K')) {
     pts += 4;
-  } else if (code.includes('C') || code.includes('Y')) {
+  } else if ((code.includes('C') || code.includes('Y')) && !code.includes('P')) {
+    // C e Y só pontuam como cor quando P NÃO está presente
+    // (P já cobre o critério de opacidade/cor cremosa)
     pts += 2;
   }
 
-  // Sensação
+  // 3. Sensação
   pts += code.includes('L') ? 8 : 2;
 
   return pts;
@@ -517,75 +618,77 @@ function classifyMCS(avg) {
   return 'Indeterminado';
 }
 
-/* ── Atualiza pontuação e linha de resultado ── */
+/* ── Bloco HTML da linha de resultado ── */
+function resultHTML(total, hasAny) {
+  if (!hasAny) {
+    return `<div class="result-inner">
+      <div class="result-item">
+        <span class="result-item-label">Resultado</span>
+        <span class="result-item-value">—</span>
+      </div>
+    </div>`;
+  }
+  const avg    = total / 6;
+  const avgStr = avg.toFixed(1).replace('.', ',');
+  const cls    = classifyMCS(avg);
+  return `<div class="result-inner">
+    <div class="result-item">
+      <span class="result-item-label">Soma</span>
+      <span class="result-item-value">${total}</span>
+    </div>
+    <div class="result-item">
+      <span class="result-item-label">Média (MCS)</span>
+      <span class="result-item-value hi-avg">${avgStr}</span>
+    </div>
+    <div class="result-item">
+      <span class="result-item-label">Classificação</span>
+      <span class="result-item-value hi-cls">${cls}</span>
+    </div>
+  </div>`;
+}
+
+/* ── Atualiza resultado de um ciclo ── */
 function updateCycleResult(cycleId) {
   let total  = 0;
   let hasAny = false;
 
   for (let i = 0; i < 6; i++) {
-    const input = document.getElementById(`code-${cycleId}-${i}`);
-    const val   = input ? input.value.trim() : '';
-    const pts   = scoreMucus(val);
+    const val = (document.getElementById(`code-${cycleId}-${i}`) || {}).value || '';
+    const pts = scoreMucus(val.trim());
+    if (val.trim()) hasAny = true;
     total += pts;
-    if (val) hasAny = true;
 
-    const cell = document.getElementById(`day-score-${cycleId}-${i}`);
-    if (cell) cell.textContent = val ? pts : '';
+    // Pontuação na tabela horizontal
+    const scoreH = document.getElementById(`score-h-${cycleId}-${i}`);
+    if (scoreH) scoreH.textContent = val.trim() ? pts : '';
+
+    // Pontuação na tabela vertical
+    const scoreV = document.getElementById(`score-v-${cycleId}-${i}`);
+    if (scoreV) scoreV.textContent = val.trim() ? pts : '';
   }
 
-  const merged = document.getElementById(`result-merged-${cycleId}`);
-  if (!merged) return;
-
-  if (!hasAny) {
-    merged.innerHTML = `
-      <div class="result-inner">
-        <div class="result-item">
-          <span class="result-item-label">Resultado</span>
-          <span class="result-item-value">—</span>
-        </div>
-      </div>`;
-    return;
-  }
-
-  const avg    = total / 6;
-  const avgStr = avg.toFixed(1).replace('.', ',');
-  const cls    = classifyMCS(avg);
-
-  merged.innerHTML = `
-    <div class="result-inner">
-      <div class="result-item">
-        <span class="result-item-label">Soma</span>
-        <span class="result-item-value">${total}</span>
-      </div>
-      <div class="result-item">
-        <span class="result-item-label">Média (MCS)</span>
-        <span class="result-item-value highlight-avg">${avgStr}</span>
-      </div>
-      <div class="result-item">
-        <span class="result-item-label">Classificação</span>
-        <span class="result-item-value highlight-cls">${cls}</span>
-      </div>
-    </div>`;
+  const rh = document.getElementById(`result-h-${cycleId}`);
+  const rv = document.getElementById(`result-v-${cycleId}`);
+  const html = resultHTML(total, hasAny);
+  if (rh) rh.innerHTML = html;
+  if (rv) rv.innerHTML = html;
 }
 
 /* ── Resetar ciclo ── */
 function resetCycle(cycleId) {
   for (let i = 0; i < 6; i++) {
-    const input = document.getElementById(`code-${cycleId}-${i}`);
-    if (input) input.value = '';
-    const cell = document.getElementById(`day-score-${cycleId}-${i}`);
-    if (cell) cell.textContent = '';
+    const inp = document.getElementById(`code-${cycleId}-${i}`);
+    if (inp) inp.value = '';
+    const sh = document.getElementById(`score-h-${cycleId}-${i}`);
+    if (sh) sh.textContent = '';
+    const sv = document.getElementById(`score-v-${cycleId}-${i}`);
+    if (sv) sv.textContent = '';
   }
-  const merged = document.getElementById(`result-merged-${cycleId}`);
-  if (merged) {
-    merged.innerHTML = `
-      <div class="result-inner">
-        <div class="result-item">
-          <span class="result-item-label">Resultado</span>
-          <span class="result-item-value">—</span>
-        </div>
-      </div>`;
-  }
+  const empty = resultHTML(0, false);
+  const rh = document.getElementById(`result-h-${cycleId}`);
+  const rv = document.getElementById(`result-v-${cycleId}`);
+  if (rh) rh.innerHTML = empty;
+  if (rv) rv.innerHTML = empty;
 }
 
 /* ── Adiciona novo ciclo ── */
@@ -596,63 +699,107 @@ function addCycle() {
   div.className = 'card';
   div.id        = `cycle-${id}`;
 
+  // Gera inputs únicos para cada dia (compartilhados entre tabelas h e v)
+  const inputsHTML = DAYS.map((_, i) =>
+    `<input class="code-input" id="code-${id}-${i}"
+            oninput="updateCycleResult(${id})"
+            placeholder="—" maxlength="8">`
+  );
+
+  /* ── TABELA HORIZONTAL (desktop) ── */
+  const horizHTML = `
+    <div class="tbl-horiz">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th class="th-empty"></th>
+              ${DAYS.map(d => `<th>${d}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Código</th>
+              ${DAYS.map((_, i) => `<td>${inputsHTML[i]}</td>`).join('')}
+            </tr>
+            <tr class="score-row">
+              <th>Pontos</th>
+              ${DAYS.map((_, i) => `<td id="score-h-${id}-${i}"></td>`).join('')}
+            </tr>
+            <tr class="result-row">
+              <th>MCS</th>
+              <td colspan="6" id="result-h-${id}">
+                ${resultHTML(0, false)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  /* ── TABELA VERTICAL (mobile) ── */
+  const vertHTML = `
+    <div class="tbl-vert">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Dia</th>
+              <th>Código de muco</th>
+              <th>Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${DAYS.map((d, i) => `
+              <tr>
+                <td class="day-cell">${d}</td>
+                <td>
+                  <input class="code-input" id="code-v-${id}-${i}"
+                         oninput="syncAndUpdate(${id}, ${i}, this.value)"
+                         placeholder="—" maxlength="8">
+                </td>
+                <td class="pts-cell" id="score-v-${id}-${i}"></td>
+              </tr>`).join('')}
+            <tr class="result-row-v">
+              <th colspan="3" style="padding:0;">
+                <table style="width:100%;border-collapse:collapse;">
+                  <tr>
+                    <td colspan="3" id="result-v-${id}" style="background:var(--navy);border-color:#1a3080;padding:6px 10px;text-align:left;">
+                      ${resultHTML(0, false)}
+                    </td>
+                  </tr>
+                </table>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
   div.innerHTML = `
-    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+    <div class="card-title">
       <span>▸ Ciclo MCS ${id}</span>
-      <button class="btn btn-reset"
-              style="flex:0;min-width:auto;font-size:0.88em;padding:2px 10px;border-width:2px;"
-              onclick="resetCycle(${id})"
-              title="Limpar todos os códigos deste ciclo">
+      <button class="btn btn-reset" onclick="resetCycle(${id})" title="Limpar todos os códigos">
         ↺ Resetar
       </button>
     </div>
-    <div class="card-subtitle">
-      Códigos de muco dos seis dias até o Dia Pico (P).
-    </div>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th class="th-empty"></th>
-            ${DAYS.map(d => `<th>${d}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Linha 1: input de código -->
-          <tr>
-            <th>Código</th>
-            ${DAYS.map((_,i) => `
-              <td>
-                <input class="code-input"
-                       id="code-${id}-${i}"
-                       oninput="updateCycleResult(${id})"
-                       placeholder="—"
-                       maxlength="8">
-              </td>`).join('')}
-          </tr>
-          <!-- Linha 2: pontuação diária -->
-          <tr class="score-row">
-            <th>Pontos</th>
-            ${DAYS.map((_,i) =>
-              `<td id="day-score-${id}-${i}"></td>`).join('')}
-          </tr>
-          <!-- Linha 3: resultado agregado (colspan=6) -->
-          <tr class="result-row">
-            <th>MCS</th>
-            <td class="result-merged" colspan="6" id="result-merged-${id}">
-              <div class="result-inner">
-                <div class="result-item">
-                  <span class="result-item-label">Resultado</span>
-                  <span class="result-item-value">—</span>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>`;
+    <div class="card-subtitle">Códigos de muco dos seis dias até o Dia Pico (P).</div>
+    ${horizHTML}
+    ${vertHTML}`;
 
   document.getElementById('container').appendChild(div);
+
+  // Sincroniza inputs da tabela vertical com os da horizontal
+  // (ambas as tabelas referenciam os mesmos IDs code-ID-I)
+  // A tabela vertical usa IDs code-v-ID-I que fazem bridge via syncAndUpdate
+}
+
+/* ── Sincroniza input vertical → horizontal e recalcula ── */
+function syncAndUpdate(cycleId, dayIndex, val) {
+  const hInput = document.getElementById(`code-${cycleId}-${dayIndex}`);
+  if (hInput) hInput.value = val;
+  updateCycleResult(cycleId);
+  // Também sincroniza pontuação no vertical via updateCycleResult
 }
 
 /* ── Relatório ── */
@@ -664,12 +811,10 @@ function generateReport() {
 
   for (let id = 1; id <= cycleCounter; id++) {
     if (!document.getElementById(`cycle-${id}`)) continue;
-
     const codes = Array.from({length: 6}, (_, i) => {
-      const v = document.getElementById(`code-${id}-${i}`).value.trim().toUpperCase();
-      return v || '--';
+      const v = (document.getElementById(`code-${id}-${i}`) || {}).value || '';
+      return v.trim().toUpperCase() || '--';
     });
-
     if (codes.every(c => c === '--')) continue;
     hasAny = true;
 
