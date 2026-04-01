@@ -338,6 +338,19 @@
     <span class="icon-label">Calc. MCS</span>
   </a>
 
+  <!-- Ícone: Acompanhamento do Ciclo -->
+  <a class="icon-wrapper"
+     href="track.html"
+     tabindex="0"
+     aria-label="Acompanhamento do Ciclo"
+     onmouseenter="showTooltip(event, this)"
+     onmouseleave="hideTooltip()"
+     onfocus="showTooltip(event, this)"
+     onblur="hideTooltip()">
+    <div class="icon-box">📋</div>
+    <span class="icon-label">Acomp. Ciclo</span>
+  </a>
+
 </div>
 
 <div class="tooltip" id="tooltip"></div>
@@ -360,6 +373,9 @@
     </a>
     <a class="start-menu-item" href="mcs.html">
       <span>🧪</span> Calc. MCS
+    </a>
+    <a class="start-menu-item" href="track.html">
+      <span>📋</span> Acomp. Ciclo
     </a>
     <hr class="start-menu-divider">
     <div class="start-menu-item" onclick="closeStartMenu()">
@@ -384,7 +400,8 @@
   /* ── TOOLTIP ── */
   const DESCRIPTIONS = {
     'Calc. ETC/ETA': 'Calcula ETC e ETA pelo Sistema Creighton com base nas relações sexuais e no Dia Pico.',
-    'Calc. MCS':     'Calcula o Mucus Cycle Score (MCS) a partir de seis dias de descrições de muco cervical até o Dia Pico.'
+    'Calc. MCS':     'Calcula o Mucus Cycle Score (MCS) a partir de seis dias de descrições de muco cervical até o Dia Pico.',
+    'Acomp. Ciclo':  'Registra e acompanha os adesivos, datas e descrições de muco dos 35 dias do ciclo.'
   };
 
   function showTooltip(event, el) {
