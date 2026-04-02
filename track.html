@@ -22,7 +22,6 @@
       background-image:repeating-linear-gradient(0deg,var(--scan) 0,var(--scan) 1px,transparent 1px,transparent 3px);
       padding:0 0 50px; color:var(--black);
     }
-    /* TITLEBAR */
     .tb {
       background:linear-gradient(to right,var(--navy),#1084d0); color:var(--white);
       font-family:'VT323',monospace; font-size:1.1em; padding:5px 10px;
@@ -45,16 +44,13 @@
       border-right:2px solid var(--white); border-bottom:2px solid var(--white);
     }
     .btn.red { color:#880000; } .btn.grn { color:#006600; } .btn.blue { color:#000080; }
-    /* WINDOW */
     .win {
       margin:14px 10px; background:var(--silver);
       border-top:3px solid var(--white); border-left:3px solid var(--white);
       border-right:3px solid var(--sd); border-bottom:3px solid var(--sd);
       padding-bottom:10px;
     }
-    /* TABLE SCROLL */
     .tscroll { overflow-x:auto; padding:10px 10px 4px; -webkit-overflow-scrolling:touch; }
-    /* CYCLE TABLE */
     .ct { border-collapse:collapse; table-layout:fixed; background:var(--white);
       border-top:2px solid var(--sd); border-left:2px solid var(--sd);
       border-right:2px solid var(--white); border-bottom:2px solid var(--white); }
@@ -81,19 +77,19 @@
     .sc:active { filter:brightness(.80); }
     .sw { width:100%; height:100%; display:block; position:absolute; inset:0; }
     .sw svg { width:100%; height:100%; display:block; }
+    /* DATA — apenas dd/mm, fonte menor para caber na célula */
     .dtc { background:var(--white); padding:0; border-bottom:1px solid #d0d0d0; }
     .dbtn {
       width:100%; border:none; outline:none; font-family:'Share Tech Mono',monospace;
-      font-size:.72em; text-align:center; background:transparent; padding:3px 1px;
-      color:var(--navy); font-weight:bold; cursor:pointer; display:block; white-space:nowrap;
+      font-size:.62em; text-align:center; background:transparent; padding:2px 1px;
+      color:var(--navy); font-weight:bold; cursor:pointer; display:block;
+      white-space:nowrap; overflow:hidden; line-height:1.3;
     }
     .dbtn:hover { background:#e8e8ff; }
     .dbtn:focus { outline:1px dotted var(--navy); outline-offset:-1px; }
     .dbtn.af { color:#4a4a8a; font-weight:normal; }
     .dbtn.em { color:#bbb; font-weight:normal; }
-    /* DESCRIÇÃO — 3 sublinhas */
     .desc-block { background:var(--white); padding:0; }
-    .sub-row { display:flex; }
     .sub-inp {
       flex:1; border:none; outline:none; font-family:'Share Tech Mono',monospace;
       font-size:.64em; text-align:center; background:transparent; padding:1px 1px;
@@ -103,7 +99,6 @@
     }
     .sub-inp + .sub-inp { border-top:1px dotted #eee; }
     .sub-inp:focus { outline:none; background:rgba(0,0,128,.025); }
-    /* MOBILE */
     @media (max-width:640px) {
       .tscroll { display:none; }
       .mv { display:block; padding:6px; }
@@ -119,7 +114,7 @@
     }
     .mdg { display:grid; grid-template-columns:1fr; gap:3px; margin-bottom:10px; }
     .mdr {
-      display:grid; grid-template-columns:28px 50px 48px 1fr;
+      display:grid; grid-template-columns:28px 50px 44px 1fr;
       align-items:stretch; border:1px solid #b8b8b8; background:var(--white); min-height:66px;
     }
     .mdn {
@@ -132,18 +127,18 @@
     .msc:hover  { filter:brightness(.92); }
     .msc:active { filter:brightness(.80); }
     .msc .sw { position:absolute; inset:0; }
-    .mdc { border-right:1px solid #b0b0b0; display:flex; align-items:center; justify-content:center; }
+    /* DATA mobile — dd/mm apenas */
+    .mdc { border-right:1px solid #b0b0b0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
     .mdb {
       border:none; outline:none; font-family:'Share Tech Mono',monospace;
-      font-size:.70em; text-align:center; background:transparent; padding:2px 1px;
+      font-size:.60em; text-align:center; background:transparent; padding:1px 2px;
       color:var(--navy); font-weight:bold; cursor:pointer; width:100%;
+      white-space:nowrap; overflow:hidden;
     }
     .mdb.em { color:#bbb; font-weight:normal; }
     .mdb.af { color:#4a4a8a; font-weight:normal; }
     .mdb:focus { outline:1px dotted var(--navy); }
-    /* mobile desc block */
     .m-desc-block { display:flex; flex-direction:column; width:100%; }
-    .m-sub-row { display:flex; }
     .m-sub-inp {
       flex:1; border:none; outline:none; font-family:'Share Tech Mono',monospace;
       font-size:.63em; text-align:center; background:transparent; padding:1px 2px;
@@ -153,7 +148,6 @@
     }
     .m-sub-inp + .m-sub-inp { border-top:1px dotted #eee; }
     .m-sub-inp:focus { outline:none; background:rgba(0,0,128,.025); }
-    /* BOTTOM BAR */
     .bb { display:flex; gap:6px; margin:8px 10px 0; flex-wrap:wrap; }
     .btnm {
       font-family:'VT323',monospace; font-size:1.02em; letter-spacing:.04em;
@@ -169,7 +163,20 @@
       border-right:3px solid var(--white); border-bottom:3px solid var(--white);
     }
     .btnm.blue { color:var(--navy); } .btnm.grn { color:#006600; } .btnm.red { color:#880000; }
-    /* OVERLAY / POPUPS */
+    .add-cycle-wrap { margin:6px 10px 0; }
+    .btn-add-cycle {
+      font-family:'VT323',monospace; font-size:1.05em; letter-spacing:.04em;
+      background:var(--silver); color:#006600;
+      border-top:3px solid var(--white); border-left:3px solid var(--white);
+      border-right:3px solid var(--sd); border-bottom:3px solid var(--sd);
+      padding:5px 18px; cursor:pointer; width:100%;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .btn-add-cycle:hover { background:var(--sl); }
+    .btn-add-cycle:active {
+      border-top:3px solid var(--sd); border-left:3px solid var(--sd);
+      border-right:3px solid var(--white); border-bottom:3px solid var(--white);
+    }
     .ov { display:none; position:fixed; inset:0; z-index:199; }
     .ov.open { display:block; }
     .sp, .cp {
@@ -179,7 +186,7 @@
       padding:8px; box-shadow:4px 4px 0 rgba(0,0,0,.35);
     }
     .sp.open, .cp.open { display:block; }
-    .sp { min-width:238px; max-width:280px; max-height:78vh; overflow-y:auto; }
+    .sp { min-width:238px; max-width:290px; max-height:78vh; overflow-y:auto; }
     .cp { width:200px; }
     .pt {
       font-family:'VT323',monospace; font-size:.95em; color:var(--navy);
@@ -214,7 +221,6 @@
       background:rgba(0,0,128,.1);
     }
     .pol { font-family:'VT323',monospace; font-size:.68em; color:var(--black); text-align:center; max-width:38px; line-height:1.1; }
-    /* CALENDAR */
     .ch { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
     .cn {
       font-family:'VT323',monospace; font-size:1.1em; background:var(--silver); color:var(--black);
@@ -237,80 +243,77 @@
     .cdy.today { background:#efefff; border-color:var(--navy); font-weight:bold; }
     .cdy.emp { cursor:default; }
     .cdy.emp:hover { background:transparent; border-color:transparent; color:var(--black); }
-    /* MODAL */
-    .modal { display:none; position:fixed; z-index:210; inset:0; align-items:center; justify-content:center; }
-    .modal.open { display:flex; }
-    .mbg { position:absolute; inset:0; background:rgba(0,0,0,.45); }
-    .mbox {
-      position:relative; z-index:1; background:var(--sl);
+    .modal {
+      display:none; position:fixed; z-index:210; background:var(--sl);
       border-top:3px solid var(--white); border-left:3px solid var(--white);
       border-right:3px solid var(--sd); border-bottom:3px solid var(--sd);
-      width:min(700px,95vw); max-height:88vh;
-      display:flex; flex-direction:column; box-shadow:6px 6px 0 rgba(0,0,0,.4);
+      padding:10px; box-shadow:4px 4px 0 rgba(0,0,0,.4);
+      width:min(340px,94vw); top:50%; left:50%; transform:translate(-50%,-50%);
     }
-    .mtb {
-      background:linear-gradient(to right,var(--navy),#1084d0); color:var(--white);
-      font-family:'VT323',monospace; font-size:1em;
-      padding:4px 10px; display:flex; align-items:center;
-      justify-content:space-between; letter-spacing:.05em; flex-shrink:0;
+    .modal.open { display:block; }
+    .modal-ov { display:none; position:fixed; inset:0; z-index:209; background:rgba(0,0,0,.4); }
+    .modal-ov.open { display:block; }
+    .mh {
+      font-family:'VT323',monospace; font-size:1em; color:var(--navy); letter-spacing:.05em;
+      margin-bottom:8px; border-bottom:1px solid var(--sd); padding-bottom:4px;
+      display:flex; justify-content:space-between; align-items:center;
     }
-    .mb { padding:10px; flex:1; overflow:hidden; display:flex; flex-direction:column; gap:8px; }
-    #reportOutput {
-      flex:1; min-height:200px; font-family:'Share Tech Mono',monospace; font-size:.75em;
-      border-top:2px solid var(--sd); border-left:2px solid var(--sd);
-      border-right:2px solid var(--white); border-bottom:2px solid var(--white);
-      padding:8px; background:var(--white); color:var(--black);
-      white-space:pre; overflow:auto; resize:none; line-height:1.7;
+    .imp-ta {
+      width:100%; height:80px; font-family:'Share Tech Mono',monospace;
+      font-size:.72em; border:1px solid var(--sd); background:var(--white);
+      padding:4px; resize:vertical; color:var(--black); margin-bottom:6px; display:block;
     }
-    .ma { display:flex; gap:8px; align-items:center; flex-shrink:0; flex-wrap:wrap; }
-    .cm { font-family:'Share Tech Mono',monospace; font-size:.78em; color:#006600; display:none; }
-    .sub { width:100%; font-family:'VT323',monospace; font-size:.85em; color:#444; letter-spacing:.03em; }
-    .urlbox {
-      font-family:'Share Tech Mono',monospace; font-size:.7em;
-      border-top:2px solid var(--sd); border-left:2px solid var(--sd);
-      border-right:2px solid var(--white); border-bottom:2px solid var(--white);
-      padding:6px 8px; background:var(--white); word-break:break-all;
-      max-height:80px; overflow-y:auto; line-height:1.5;
+    .imp-file {
+      font-family:'Share Tech Mono',monospace; font-size:.72em;
+      margin-bottom:6px; display:block; color:var(--black);
     }
-    #jsonImportArea {
-      flex:1; min-height:140px; font-family:'Share Tech Mono',monospace; font-size:.72em;
-      border-top:2px solid var(--sd); border-left:2px solid var(--sd);
-      border-right:2px solid var(--white); border-bottom:2px solid var(--white);
-      padding:8px; background:var(--white); color:var(--black);
-      resize:none; line-height:1.6;
+    .imp-msg { font-family:'Share Tech Mono',monospace; font-size:.72em; margin-left:8px; }
+    .share-modal {
+      display:none; position:fixed; z-index:210; background:var(--sl);
+      border-top:3px solid var(--white); border-left:3px solid var(--white);
+      border-right:3px solid var(--sd); border-bottom:3px solid var(--sd);
+      padding:10px; box-shadow:4px 4px 0 rgba(0,0,0,.4);
+      width:min(340px,94vw); top:50%; left:50%; transform:translate(-50%,-50%);
     }
-    /* STATUS BAR */
+    .share-modal.open { display:block; }
+    .share-url {
+      font-family:'Share Tech Mono',monospace; font-size:.68em; color:#333;
+      word-break:break-all; margin-bottom:8px; line-height:1.4;
+      border:1px solid var(--sd); background:var(--white); padding:4px;
+    }
+    .rp-modal {
+      display:none; position:fixed; z-index:210; background:var(--sl);
+      border-top:3px solid var(--white); border-left:3px solid var(--white);
+      border-right:3px solid var(--sd); border-bottom:3px solid var(--sd);
+      padding:10px; box-shadow:4px 4px 0 rgba(0,0,0,.4);
+      width:min(520px,96vw); max-height:80vh;
+      top:50%; left:50%; transform:translate(-50%,-50%);
+      display:none; flex-direction:column;
+    }
+    .rp-modal.open { display:flex; }
+    .rp-body { flex:1; overflow-y:auto; margin-top:6px; }
+    .rp-pre { font-family:'Share Tech Mono',monospace; font-size:.72em; white-space:pre-wrap; word-break:break-all; color:var(--black); line-height:1.5; }
+    #exportWrap { position:fixed; left:-9999px; top:0; background:var(--white); font-family:'Share Tech Mono','Courier New',monospace; }
+    #prog { display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.55); align-items:center; justify-content:center; }
+    #prog.open { display:flex; }
+    .pbox {
+      background:var(--sl); padding:20px 30px; text-align:center;
+      font-family:'VT323',monospace; font-size:1.1em; color:var(--navy);
+      border-top:3px solid var(--white); border-left:3px solid var(--white);
+      border-right:3px solid var(--sd); border-bottom:3px solid var(--sd);
+    }
     .sbar {
-      position:fixed; bottom:0; left:0; right:0; height:26px;
+      position:fixed; bottom:0; left:0; right:0; height:24px;
       background:var(--silver); border-top:2px solid var(--white);
-      display:flex; align-items:center; padding:0 8px; gap:6px;
-      z-index:100; font-family:'Share Tech Mono',monospace; font-size:.72em;
+      display:flex; align-items:center; padding:0 8px; gap:5px; z-index:100;
+      font-family:'Share Tech Mono',monospace; font-size:.7em;
     }
     .scell {
       border-top:1px solid var(--sd); border-left:1px solid var(--sd);
       border-right:1px solid var(--white); border-bottom:1px solid var(--white);
-      padding:1px 8px; height:18px; display:flex; align-items:center;
+      padding:1px 6px; height:16px; display:flex; align-items:center;
     }
     .sclock { margin-left:auto; }
-    /* PROGRESS */
-    #prog {
-      display:none; position:fixed; inset:0; z-index:300;
-      background:rgba(0,0,128,.65); align-items:center; justify-content:center;
-    }
-    #prog.open { display:flex; }
-    .pbox {
-      background:var(--sl);
-      border-top:3px solid var(--white); border-left:3px solid var(--white);
-      border-right:3px solid var(--sd); border-bottom:3px solid var(--sd);
-      padding:16px 24px; font-family:'VT323',monospace; font-size:1.1em;
-      color:var(--navy); text-align:center; box-shadow:4px 4px 0 rgba(0,0,0,.4);
-    }
-    /* PNG export table — hidden but rendered for capture */
-    #exportWrap {
-      position:fixed; left:-9999px; top:0; z-index:-1;
-      background:var(--white); padding:10px;
-    }
-    #exportWrap .ct { font-size:inherit; }
   </style>
 </head>
 <body>
@@ -319,111 +322,107 @@
   <span>&#128203;</span>
   <span>Acompanhamento do Ciclo</span>
   <div class="tb-btns">
-    <button class="btn grn"  onclick="openShareModal()">&#128279; Compartilhar</button>
-    <button class="btn blue" onclick="exportJSON()">&#128229; Exportar</button>
-    <button class="btn blue" onclick="openImportModal()">&#128228; Importar</button>
-    <button class="btn red"  onclick="confirmReset()">&#x21BA; Resetar</button>
+    <button class="btn grn" onclick="openShareModal()">&#128279; Compartilhar</button>
+    <button class="btn grn" onclick="exportPNG()">&#x1F4F7; JPG</button>
+    <button class="btn red" onclick="confirmReset()">&#x21BA; Resetar</button>
     <a class="btn" href="index.html">&#9664; In&iacute;cio</a>
   </div>
 </div>
 
-<div class="win" id="mainContent">
-  <div class="tscroll">
-    <table class="ct" id="cycleTable">
-      <thead id="tableHead"></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
-  <div class="mv" id="mobileView"></div>
-  <div class="bb">
-    <button class="btnm blue" onclick="openReport()">&#9658; Relat&oacute;rio</button>
-    <button class="btnm grn"  onclick="exportPNG()">&#x1F4F7; PNG</button>
-  </div>
+<div id="cyclesContainer"></div>
+
+<div class="add-cycle-wrap" id="addCycleBtn">
+  <button class="btn-add-cycle" onclick="addCycle()">&#43; Novo Ciclo</button>
 </div>
 
-<!-- Wrap invisível usado para captura PNG -->
+<div class="bb" style="margin-top:10px;">
+  <button class="btnm blue" onclick="openReport()">&#9658; Relat&oacute;rio</button>
+  <button class="btnm blue" onclick="exportJSON()">&#128229; Exportar</button>
+  <button class="btnm blue" onclick="openImportModal()">&#128228; Importar</button>
+</div>
+
 <div id="exportWrap"></div>
 
-<div class="ov" id="spOv" onclick="closeSP()"></div>
+<!-- Overlays genéricos -->
+<div class="ov" id="spOv"  onclick="closeSP()"></div>
 <div class="ov" id="calOv" onclick="closeCal()"></div>
 
+<!-- Picker de adesivos -->
 <div class="sp" id="stickerPicker">
   <div class="pt"><span>Adesivo</span><button class="pc" onclick="closeSP()">&#x2715;</button></div>
   <div class="pg" id="pickerGrid"></div>
 </div>
 
+<!-- Calendário -->
 <div class="cp" id="calPopup">
   <div class="ch">
-    <button class="cn" onclick="calShift(-1)">&#9664;</button>
-    <div class="cml" id="calLabel"></div>
-    <button class="cn" onclick="calShift(1)">&#9654;</button>
+    <button class="cn" onclick="calNav(-1)">&#9664;</button>
+    <span class="cml" id="calLabel"></span>
+    <button class="cn" onclick="calNav(1)">&#9654;</button>
   </div>
   <div class="cg" id="calGrid"></div>
 </div>
 
-<div class="modal" id="reportModal">
-  <div class="mbg" onclick="closeReport()"></div>
-  <div class="mbox">
-    <div class="mtb"><span>&#128203; Relat&oacute;rio</span><button class="pc" onclick="closeReport()">&#x2715;</button></div>
-    <div class="mb">
-      <textarea id="reportOutput" readonly></textarea>
-      <div class="ma">
-        <button class="btnm blue" style="flex:0;min-width:auto;padding:3px 14px;font-size:.95em" onclick="copyReport()">Copiar</button>
-        <span class="cm" id="copyMsg">&#x2713; Copiado!</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="shareModal">
-  <div class="mbg" onclick="closeShareModal()"></div>
-  <div class="mbox">
-    <div class="mtb"><span>&#128279; Compartilhar</span><button class="pc" onclick="closeShareModal()">&#x2715;</button></div>
-    <div class="mb" style="gap:10px">
-      <div class="sub">Link com o estado atual da tabela:</div>
-      <div class="urlbox" id="shareUrlBox"></div>
-      <div class="ma">
-        <button class="btnm blue" style="flex:0;min-width:auto;padding:3px 12px;font-size:.95em" onclick="copyShareUrl()">Copiar link</button>
-        <button class="btnm grn"  style="flex:0;min-width:auto;padding:3px 12px;font-size:.95em" onclick="shareWA()">WhatsApp</button>
-        <span class="cm" id="copyShareMsg">&#x2713; Copiado!</span>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- Modal Importar -->
+<div class="modal-ov" id="importOv" onclick="closeImportModal()"></div>
 <div class="modal" id="importModal">
-  <div class="mbg" onclick="closeImportModal()"></div>
-  <div class="mbox">
-    <div class="mtb"><span>&#128228; Importar JSON</span><button class="pc" onclick="closeImportModal()">&#x2715;</button></div>
-    <div class="mb" style="gap:8px">
-      <div class="sub">Cole o conteúdo do arquivo .json ou clique em "Escolher arquivo":</div>
-      <input type="file" id="jsonFileInput" accept=".json" style="font-family:'Share Tech Mono',monospace;font-size:.75em;width:100%">
-      <textarea id="jsonImportArea" placeholder='{"v":2,"c":[[...],...]}' spellcheck="false"></textarea>
-      <div class="ma">
-        <button class="btnm blue" style="flex:0;min-width:auto;padding:3px 12px;font-size:.95em" onclick="doImport()">Importar</button>
-        <span class="cm" id="importMsg"></span>
-      </div>
-    </div>
+  <div class="mh">
+    <span>&#128228; Importar JSON</span>
+    <button class="pc" onclick="closeImportModal()">&#x2715;</button>
+  </div>
+  <input type="file" id="jsonFileInput" accept=".json" class="imp-file">
+  <textarea class="imp-ta" id="jsonImportArea" placeholder="Cole o JSON aqui ou selecione um arquivo acima..."></textarea>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <button class="btnm blue" style="flex:0;min-width:auto;padding:3px 14px;" onclick="doImport()">Importar</button>
+    <button class="btnm" style="flex:0;min-width:auto;padding:3px 14px;" onclick="closeImportModal()">Cancelar</button>
+    <span class="imp-msg" id="importMsg"></span>
   </div>
 </div>
 
-<div id="prog"><div class="pbox">&#x1F4F7; Gerando PNG...<br><small style="font-size:.7em;color:#555">Aguarde...</small></div></div>
+<!-- Modal Compartilhar -->
+<div class="modal-ov" id="shareOv" onclick="closeShareModal()"></div>
+<div class="share-modal" id="shareModal">
+  <div class="mh">
+    <span>&#128279; Compartilhar</span>
+    <button class="pc" onclick="closeShareModal()">&#x2715;</button>
+  </div>
+  <div class="share-url" id="shareUrlText"></div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+    <button class="btnm blue" style="flex:0;min-width:auto;padding:3px 12px;" onclick="copyShareUrl()">Copiar link</button>
+    <button class="btnm grn"  style="flex:0;min-width:auto;padding:3px 12px;" onclick="shareWA()">WhatsApp</button>
+  </div>
+</div>
 
+<!-- Modal Relatório -->
+<div class="modal-ov" id="rpOv" onclick="closeReport()"></div>
+<div class="rp-modal" id="rpModal">
+  <div class="mh" style="flex-shrink:0;">
+    <span>&#9658; Relat&oacute;rio</span>
+    <div style="display:flex;gap:5px;">
+      <button class="btnm blue" style="flex:0;min-width:auto;padding:2px 12px;font-size:.9em;" onclick="copyReport()">Copiar</button>
+      <button class="pc" onclick="closeReport()">&#x2715;</button>
+    </div>
+  </div>
+  <div class="rp-body"><pre class="rp-pre" id="reportText"></pre></div>
+</div>
+
+<!-- PNG progress -->
+<div id="prog"><div class="pbox">&#x1F4F7; Gerando JPG...<br><small style="font-size:.7em;color:#555">Aguarde...</small></div></div>
+
+<!-- Status bar -->
 <div class="sbar">
-  <div class="scell">Creighton Tools</div>
   <div class="scell" id="saveStatus">Pronto</div>
   <div class="scell sclock" id="statusClock"></div>
 </div>
 
 <script>
 /* ── CONSTANTES ── */
-const NC=3, ND=35;
-/* S[ciclo][dia] = {type,badge} | null
-   D[ciclo][dia] = 'dd/mm'
-   X[ciclo][dia][sublinha 0..2] = string */
-const S = Array.from({length:NC},()=>new Array(ND).fill(null));
-const D = Array.from({length:NC},()=>new Array(ND).fill(''));
-const X = Array.from({length:NC},()=>Array.from({length:ND},()=>['','','']));
+const ND=35;
+let NC=1; /* dinâmico */
+
+let S=[new Array(ND).fill(null)];
+let D=[new Array(ND).fill('')];
+let X=[Array.from({length:ND},()=>['','',''])];
 
 let pC=-1,pD=-1;
 let cC=-1,cD=-1,cY=0,cM=0;
@@ -432,7 +431,6 @@ let saveTimer=null;
 const MN=['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
           'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DW=['D','S','T','Q','Q','S','S'];
-/* Rótulos das 3 sublinhas */
 
 function tick(){
   const n=new Date();
@@ -441,19 +439,22 @@ function tick(){
 }
 tick(); setInterval(tick,10000);
 
-/* ── TIPO → CHAR (serialização compacta) ── */
+/* ── TIPOS ── */
 const TID={R:'red',G:'green',Y:'yellow',W:'white_baby',B:'green_baby',X:'yellow_baby'};
 const TID_REV={red:'R',green:'G',yellow:'Y',white_baby:'W',green_baby:'B',yellow_baby:'X'};
 
 const TYPES=[
-  {id:'red',         bg:'#cc0000',br:'#880000',baby:false,bc:null,     lbl:'Vermelho'},
-  {id:'green',       bg:'#00aa44',br:'#007730',baby:false,bc:null,     lbl:'Verde'},
-  {id:'yellow',      bg:'#ddbb00',br:'#aa8800',baby:false,bc:null,     lbl:'Amarelo'},
-  {id:'white_baby',  bg:'#ffffff',br:'#aaaaaa',baby:true, bc:'#333333',lbl:'Branco'},
-  {id:'green_baby',  bg:'#00aa44',br:'#007730',baby:true, bc:'#ffffff',lbl:'Verde'},
-  {id:'yellow_baby', bg:'#ddbb00',br:'#aa8800',baby:true, bc:'#ffffff',lbl:'Amarelo'},
+  {id:'red',        bg:'#cc0000',br:'#880000',baby:false,bc:null,     lbl:'Vermelho'},
+  {id:'green',      bg:'#00aa44',br:'#007730',baby:false,bc:null,     lbl:'Verde'},
+  {id:'yellow',     bg:'#ddbb00',br:'#aa8800',baby:false,bc:null,     lbl:'Amarelo'},
+  {id:'white_baby', bg:'#ffffff',br:'#aaaaaa',baby:true, bc:'#333333',lbl:'Branco'},
+  {id:'green_baby', bg:'#00aa44',br:'#007730',baby:true, bc:'#ffffff',lbl:'Verde'},
+  {id:'yellow_baby',bg:'#ddbb00',br:'#aa8800',baby:true, bc:'#ffffff',lbl:'Amarelo'},
 ];
-const BADGES=['','P','1','2','3'];
+/* Adesivos sem bebê: sem numeração; bebê verde/amarelo: 1,2,3; bebê branco: P,1,2,3 */
+const BADGES_SEM_BEBE  =[''];
+const BADGES_BEBE_COR  =['','1','2','3'];
+const BADGES_BEBE_BLANC=['','P','1','2','3'];
 
 function bpaths(c){
   return `<circle cx="0" cy="-13" r="6" fill="${c}"/>
@@ -464,7 +465,7 @@ function bpaths(c){
     <line x1="3"  y1="12" x2="4"  y2="20" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/>`;
 }
 function mksvg(tid,badge,size){
-  const t=TYPES.find(x=>x.id===tid); if(!t) return '';
+  const t=TYPES.find(x=>x.id===tid);if(!t)return '';
   const h=size||40,w=h,cx=w/2,cy=h/2;
   let inner='';
   if(t.baby){const sc=h/40*.62;inner+=`<g transform="translate(${cx},${cy*1.05}) scale(${sc})">${bpaths(t.bc)}</g>`;}
@@ -485,10 +486,9 @@ function emptysvg(){
 }
 
 /* ── SERIALIZAÇÃO ── */
-function encodeSticker(s){ if(!s)return null; const t=TID_REV[s.type]||'R'; return s.badge?t+s.badge:t; }
-function decodeSticker(str){ if(!str||str==='.')return null; const t=TID[str[0]]; if(!t)return null; return {type:t,badge:str.slice(1)||''}; }
+function encodeSticker(s){if(!s)return null;const t=TID_REV[s.type]||'R';return s.badge?t+s.badge:t;}
+function decodeSticker(str){if(!str||str==='.')return null;const t=TID[str[0]];if(!t)return null;return {type:t,badge:str.slice(1)||''};}
 
-/* v3: sticker|dt|s0§s1§s2 com RLE para células vazias */
 function serializeState(){
   const cycles=[];
   for(let c=0;c<NC;c++){
@@ -517,6 +517,7 @@ function deserializeState(raw){
     if(!raw||!raw.startsWith('v3:'))return false;
     const body=raw.slice(3);
     const cycleStrs=body.split('~');
+    while(NC<cycleStrs.length)_growCycleData();
     for(let c=0;c<NC&&c<cycleStrs.length;c++){
       const parts=[];
       const tokens=cycleStrs[c].split(';');
@@ -556,12 +557,10 @@ function buildShareUrl(){saveToHash();return location.origin+location.pathname+l
 
 /* ── JSON export/import ── */
 function stateToJSON(){
-  const out={v:3,c:[]};
+  const out={v:3,nc:NC,c:[]};
   for(let c=0;c<NC;c++){
     const days=[];
-    for(let d=0;d<ND;d++){
-      days.push({s:S[c][d]?{type:S[c][d].type,badge:S[c][d].badge}:null,dt:D[c][d],dc:X[c][d]});
-    }
+    for(let d=0;d<ND;d++)days.push({s:S[c][d]?{type:S[c][d].type,badge:S[c][d].badge}:null,dt:D[c][d],dc:X[c][d]});
     out.c.push(days);
   }
   return JSON.stringify(out,null,2);
@@ -576,11 +575,14 @@ function exportJSON(){
 function openImportModal(){
   document.getElementById('jsonImportArea').value='';
   document.getElementById('jsonFileInput').value='';
-  const msg=document.getElementById('importMsg');
-  msg.textContent='';msg.style.display='none';
+  const msg=document.getElementById('importMsg');msg.textContent='';msg.style.display='none';
   document.getElementById('importModal').classList.add('open');
+  document.getElementById('importOv').classList.add('open');
 }
-function closeImportModal(){document.getElementById('importModal').classList.remove('open');}
+function closeImportModal(){
+  document.getElementById('importModal').classList.remove('open');
+  document.getElementById('importOv').classList.remove('open');
+}
 document.getElementById('jsonFileInput').addEventListener('change',function(){
   const f=this.files[0];if(!f)return;
   const r=new FileReader();r.onload=e=>document.getElementById('jsonImportArea').value=e.target.result;r.readAsText(f);
@@ -591,175 +593,206 @@ function doImport(){
   try{
     const obj=JSON.parse(raw);
     if(!obj||!obj.v||!Array.isArray(obj.c))throw new Error('Formato inválido');
-    for(let c=0;c<NC;c++)for(let d=0;d<ND;d++){S[c][d]=null;D[c][d]='';X[c][d]=['','',''];}
+    /* resetar dados e UI */
+    const container=document.getElementById('cyclesContainer');
+    container.innerHTML='';
+    NC=1;
+    S=[new Array(ND).fill(null)];
+    D=[new Array(ND).fill('')];
+    X=[Array.from({length:ND},()=>['','',''])];
+    /* crescer até o número de ciclos do JSON */
+    while(NC<obj.c.length)_growCycleData();
+    /* popular dados */
     for(let c=0;c<NC&&c<obj.c.length;c++){
       for(let d=0;d<ND&&d<obj.c[c].length;d++){
         const e=obj.c[c][d];
         S[c][d]=e.s?{type:e.s.type,badge:e.s.badge||''}:null;
         D[c][d]=e.dt||'';
         if(Array.isArray(e.dc))X[c][d]=[e.dc[0]||'',e.dc[1]||'',e.dc[2]||''];
-        else if(typeof e.dc==='string')X[c][d]=[e.dc,'',''];
         else X[c][d]=['','',''];
       }
     }
+    /* reconstruir UI */
+    for(let c=0;c<NC;c++)container.appendChild(buildCycleBlock(c));
     refreshAll();scheduleSave();
     msg.textContent='\u2713 Importado!';msg.style.color='#006600';
     setTimeout(()=>closeImportModal(),1200);
   }catch(e){msg.textContent='\u2716 Erro: '+e.message;msg.style.color='#880000';}
 }
 
-/* ── CALCULAR ÚLTIMO DIA PREENCHIDO (por ciclo) ── */
-function lastFilledDay(c){
-  let last=-1;
+/* ── CRESCER APENAS OS DADOS (sem UI) ── */
+function _growCycleData(){
+  S.push(new Array(ND).fill(null));
+  D.push(new Array(ND).fill(''));
+  X.push(Array.from({length:ND},()=>['','','']));
+  NC++;
+}
+
+/* ── ADICIONAR CICLO (dados + UI) ── */
+function addCycle(){
+  const c=NC; /* índice ANTES de incrementar */
+  _growCycleData();
+  const container=document.getElementById('cyclesContainer');
+  container.appendChild(buildCycleBlock(c));
+}
+
+/* ── CONSTRUIR BLOCO DE UM CICLO ── */
+function buildCycleBlock(c){
+  const win=document.createElement('div');
+  win.className='win';win.id=`win-${c}`;
+
+  /* ── DESKTOP ── */
+  const scroll=document.createElement('div');scroll.className='tscroll';
+  const tbl=document.createElement('table');tbl.className='ct';
+  const thead=document.createElement('thead');
+  const tbody=document.createElement('tbody');
+
+  /* título ciclo */
+  const tRow=document.createElement('tr');tRow.className='clr';
+  const tTd=document.createElement('td');tTd.setAttribute('colspan',ND+1);
+  tTd.textContent=`\u25B8 Ciclo ${c+1}`;tRow.appendChild(tTd);thead.appendChild(tRow);
+
+  /* numeração dias */
+  const nRow=document.createElement('tr');
+  const nTh=document.createElement('th');nTh.className='rl';nRow.appendChild(nTh);
+  for(let d=0;d<ND;d++){const th=document.createElement('th');th.className='dh';th.textContent=d+1;nRow.appendChild(th);}
+  thead.appendChild(nRow);
+
+  /* linha adesivos */
+  const sRow=document.createElement('tr');
+  const sLbl=document.createElement('td');sLbl.className='rl';sLbl.textContent='Adesivo';sRow.appendChild(sLbl);
   for(let d=0;d<ND;d++){
-    if(S[c][d]&&D[c][d]&&X[c][d].some(v=>v.trim()))last=d;
+    const td=document.createElement('td');td.className='sc';td.id=`sc-${c}-${d}`;
+    td.onclick=e=>{e.stopPropagation();openSP(c,d,td);};
+    td.innerHTML=`<div class="sw" id="sw-${c}-${d}">${emptysvg()}</div>`;
+    sRow.appendChild(td);
   }
-  return last; /* -1 = nenhum */
-}
-/* Retorna o último dia preenchido globalmente entre todos os ciclos */
-function lastFilledDayAny(){
-  let last=-1;
-  for(let c=0;c<NC;c++){const l=lastFilledDay(c);if(l>last)last=l;}
-  return last;
-}
+  tbody.appendChild(sRow);
 
-/* ── CONSTRUÇÃO DA TABELA DESKTOP ── */
-function buildDesktopTable(){
-  const head=document.getElementById('tableHead');
-  const body=document.getElementById('tableBody');
-  head.innerHTML='';body.innerHTML='';
-  const hr=document.createElement('tr');
-  const hl=document.createElement('th');hl.className='rl';
-  hl.style.cssText='background:linear-gradient(to bottom,#1a1a8e,#000080);color:#fff;';hl.textContent='Dia';
-  hr.appendChild(hl);
-  for(let d=0;d<ND;d++){const th=document.createElement('th');th.className='dh';th.textContent=d+1;hr.appendChild(th);}
-  head.appendChild(hr);
-
-  for(let c=0;c<NC;c++){
-    /* Separador de ciclo */
-    const lr=document.createElement('tr');lr.className='clr';
-    const ltd=document.createElement('td');ltd.setAttribute('colspan',ND+1);
-    ltd.textContent=`\u25B8 Ciclo ${c+1}`;lr.appendChild(ltd);body.appendChild(lr);
-
-    /* Linha de adesivos */
-    const sr=document.createElement('tr');
-    const sl=document.createElement('td');sl.className='rl';sl.textContent='Adesivo';sr.appendChild(sl);
-    for(let d=0;d<ND;d++){
-      const td=document.createElement('td');td.className='sc';td.id=`sc-${c}-${d}`;
-      td.onclick=e=>{e.stopPropagation();openSP(c,d,td);};
-      td.innerHTML=`<div class="sw" id="sw-${c}-${d}"></div>`;sr.appendChild(td);
-    }
-    body.appendChild(sr);
-
-    /* Linha de datas */
-    const dr=document.createElement('tr');
-    const dl=document.createElement('td');dl.className='rl';dl.textContent='Data';dr.appendChild(dl);
-    for(let d=0;d<ND;d++){
-      const td=document.createElement('td');td.className='dtc';
-      const btn=document.createElement('button');btn.className='dbtn em';btn.id=`dt-${c}-${d}`;
-      btn.textContent='dd/mm';btn.onclick=e=>{e.stopPropagation();openCal(c,d,btn);};
-      td.appendChild(btn);dr.appendChild(td);
-    }
-    body.appendChild(dr);
-
-    /* 3 sublinhas de descrição — 1 row, sem rótulo */
-    const descRow2=document.createElement('tr');
-    const descLbl2=document.createElement('td');descLbl2.className='rl';descLbl2.textContent='Muco';descRow2.appendChild(descLbl2);
-    for(let d=0;d<ND;d++){
-      const td=document.createElement('td');td.className='desc-block';
-      td.style.borderTop='1px solid #c8c8c8';
-      for(let si=0;si<3;si++){
-        const ta=document.createElement('textarea');ta.className='sub-inp';
-        ta.id=`si-${c}-${d}-${si}`;ta.placeholder='';ta.rows=1;
-        ta.value=X[c][d][si];
-        ta.addEventListener('input',()=>{
-          X[c][d][si]=ta.value.toUpperCase();ta.value=ta.value.toUpperCase();
-          syncSubMobile(c,d,si);scheduleSave();
-        });
-        td.appendChild(ta);
-      }
-      descRow2.appendChild(td);
-    }
-    body.appendChild(descRow2);
+  /* linha datas — exibe dd/mm */
+  const dRow=document.createElement('tr');
+  const dLbl=document.createElement('td');dLbl.className='rl';dLbl.textContent='Data';dRow.appendChild(dLbl);
+  for(let d=0;d<ND;d++){
+    const td=document.createElement('td');td.className='dtc';
+    const btn=document.createElement('button');btn.className='dbtn em';btn.id=`dt-${c}-${d}`;
+    btn.textContent='--/--';
+    btn.onclick=e=>{e.stopPropagation();openCal(c,d,btn);};
+    td.appendChild(btn);dRow.appendChild(td);
   }
+  tbody.appendChild(dRow);
+
+  /* linha descrição — 3 sublinhas */
+  const descRow=document.createElement('tr');
+  const descLbl=document.createElement('td');descLbl.className='rl';descLbl.textContent='Muco';descRow.appendChild(descLbl);
+  for(let d=0;d<ND;d++){
+    const td=document.createElement('td');td.className='desc-block';
+    td.style.borderTop='1px solid #c8c8c8';
+    for(let si=0;si<3;si++){
+      const ta=document.createElement('textarea');ta.className='sub-inp';
+      ta.id=`si-${c}-${d}-${si}`;ta.rows=1;ta.value=X[c][d][si];
+      ta.addEventListener('input',()=>{
+        X[c][d][si]=ta.value.toUpperCase();ta.value=ta.value.toUpperCase();
+        syncSubMobile(c,d,si);scheduleSave();
+      });
+      td.appendChild(ta);
+    }
+    descRow.appendChild(td);
+  }
+  tbody.appendChild(descRow);
+
+  tbl.appendChild(thead);tbl.appendChild(tbody);
+  scroll.appendChild(tbl);win.appendChild(scroll);
+
+  /* ── MOBILE ── */
+  const mv=document.createElement('div');mv.className='mv';mv.id=`mv-${c}`;
+  const mch=document.createElement('div');mch.className='mch';
+  mch.textContent=`\u25B8 Ciclo ${c+1}`;mv.appendChild(mch);
+  const grid=document.createElement('div');grid.className='mdg';
+  for(let d=0;d<ND;d++){
+    const row=document.createElement('div');row.className='mdr';
+    /* número */
+    const num=document.createElement('div');num.className='mdn';num.textContent=d+1;
+    /* adesivo */
+    const sc=document.createElement('div');sc.className='msc';sc.id=`msc-${c}-${d}`;
+    sc.innerHTML=`<div class="sw" id="msw-${c}-${d}">${emptysvg()}</div>`;
+    sc.onclick=e=>{e.stopPropagation();openSP(c,d,sc);};
+    /* data — dd/mm */
+    const dc=document.createElement('div');dc.className='mdc';
+    const mdb=document.createElement('button');mdb.className='mdb em';mdb.id=`mdt-${c}-${d}`;
+    mdb.textContent='--/--';
+    mdb.onclick=e=>{e.stopPropagation();openCal(c,d,mdb);};
+    dc.appendChild(mdb);
+    /* descrição */
+    const dsc=document.createElement('div');dsc.className='m-desc-block';
+    for(let si=0;si<3;si++){
+      const ta=document.createElement('textarea');ta.className='m-sub-inp';
+      ta.id=`msi-${c}-${d}-${si}`;ta.rows=1;ta.value=X[c][d][si];
+      ta.addEventListener('input',()=>{
+        X[c][d][si]=ta.value.toUpperCase();ta.value=ta.value.toUpperCase();
+        syncSubDesktop(c,d,si);scheduleSave();
+      });
+      dsc.appendChild(ta);
+    }
+    row.append(num,sc,dc,dsc);grid.appendChild(row);
+  }
+  mv.appendChild(grid);win.appendChild(mv);
+  return win;
 }
 
-/* ── CONSTRUÇÃO DA TABELA MOBILE ── */
-function buildMobileView(){
-  const mv=document.getElementById('mobileView');mv.innerHTML='';
-  for(let c=0;c<NC;c++){
-    const ch=document.createElement('div');ch.className='mch';
-    ch.textContent=`\u25B8 Ciclo ${c+1}`;mv.appendChild(ch);
-    const grid=document.createElement('div');grid.className='mdg';
-    for(let d=0;d<ND;d++){
-      const row=document.createElement('div');row.className='mdr';
-      const num=document.createElement('div');num.className='mdn';num.textContent=d+1;
-      const sc=document.createElement('div');sc.className='msc';sc.id=`msc-${c}-${d}`;
-      sc.innerHTML=`<div class="sw" id="msw-${c}-${d}"></div>`;
-      sc.onclick=e=>{e.stopPropagation();openSP(c,d,sc);};
-      const dc=document.createElement('div');dc.className='mdc';
-      const btn=document.createElement('button');btn.className='mdb em';btn.id=`mdt-${c}-${d}`;
-      btn.textContent='dd/mm';btn.onclick=e=>{e.stopPropagation();openCal(c,d,btn);};
-      dc.appendChild(btn);
-      /* 3 sublinhas mobile */
-      const dsc=document.createElement('div');dsc.className='m-desc-block';
-      for(let si=0;si<3;si++){
-        const ta=document.createElement('textarea');ta.className='m-sub-inp';
-        ta.id=`msi-${c}-${d}-${si}`;ta.placeholder='';ta.rows=1;
-        ta.value=X[c][d][si];
-        ta.addEventListener('input',()=>{
-          X[c][d][si]=ta.value.toUpperCase();ta.value=ta.value.toUpperCase();
-          syncSubDesktop(c,d,si);scheduleSave();
-        });
-        dsc.appendChild(ta);
-      }
-      row.append(num,sc,dc,dsc);grid.appendChild(row);
-    }
-    mv.appendChild(grid);
+/* ── AUTO-PREENCHER DATAS SEQUENCIAIS ── */
+function autoFillDates(c,d){
+  /* preenche para frente */
+  for(let i=d+1;i<ND;i++){
+    const base=pDateStored(D[c][d]);
+    const next=new Date(base.getFullYear(),base.getMonth(),base.getDate()+(i-d));
+    D[c][i]=fDateStore(next);
+  }
+  /* preenche para trás */
+  for(let i=d-1;i>=0;i--){
+    const base=pDateStored(D[c][d]);
+    const prev=new Date(base.getFullYear(),base.getMonth(),base.getDate()-(d-i));
+    D[c][i]=fDateStore(prev);
   }
 }
 
 /* ── REFRESH ── */
-function refreshAll(){
-  for(let c=0;c<NC;c++)for(let d=0;d<ND;d++){refreshS(c,d);refreshDate(c,d);refreshSubs(c,d);}
-}
 function refreshS(c,d){
-  const s=S[c][d],svg=s?mksvg(s.type,s.badge):emptysvg();
-  [document.getElementById(`sw-${c}-${d}`),document.getElementById(`msw-${c}-${d}`)].forEach(w=>{if(w)w.innerHTML=svg;});
+  const s=S[c][d];const svg=s?mksvg(s.type,s.badge):emptysvg();
+  const el=document.getElementById(`sw-${c}-${d}`);if(el)el.innerHTML=svg;
+  const mel=document.getElementById(`msw-${c}-${d}`);if(mel)mel.innerHTML=svg;
+}
+/* Formata data armazenada (dd/mm/aaaa ou dd/mm) para exibição dd/mm */
+function fmtDateDisplay(stored){
+  if(!stored)return '--/--';
+  const parts=stored.split('/');
+  return parts[0].padStart(2,'0')+'/'+(parts[1]||'').padStart(2,'0');
 }
 function refreshDate(c,d){
-  const val=D[c][d];
-  const e1=document.getElementById(`dt-${c}-${d}`);
-  const e2=document.getElementById(`mdt-${c}-${d}`);
-  if(e1){e1.textContent=val||'dd/mm';e1.className='dbtn'+(val?' af':' em');}
-  if(e2){e2.textContent=val||'dd/mm';e2.className='mdb'+(val?' af':' em');}
+  const txt=fmtDateDisplay(D[c][d]);
+  const filled=!!D[c][d];
+  const el=document.getElementById(`dt-${c}-${d}`);
+  if(el){el.textContent=txt;el.className='dbtn'+(filled?' af':' em');}
+  const mel=document.getElementById(`mdt-${c}-${d}`);
+  if(mel){mel.textContent=txt;mel.className='mdb'+(filled?' af':' em');}
 }
 function refreshSubs(c,d){
   for(let si=0;si<3;si++){
-    const v=X[c][d][si];
-    const t1=document.getElementById(`si-${c}-${d}-${si}`);
-    const t2=document.getElementById(`msi-${c}-${d}-${si}`);
-    if(t1&&t1.value!==v)t1.value=v;
-    if(t2&&t2.value!==v)t2.value=v;
+    const el=document.getElementById(`si-${c}-${d}-${si}`);if(el)el.value=X[c][d][si];
+    const mel=document.getElementById(`msi-${c}-${d}-${si}`);if(mel)mel.value=X[c][d][si];
   }
 }
-function syncSubDesktop(c,d,si){
-  const v=X[c][d][si];
-  const t=document.getElementById(`si-${c}-${d}-${si}`);
-  if(t&&t.value!==v)t.value=v;
+function refreshAll(){
+  for(let c=0;c<NC;c++)for(let d=0;d<ND;d++){refreshS(c,d);refreshDate(c,d);refreshSubs(c,d);}
 }
-function syncSubMobile(c,d,si){
-  const v=X[c][d][si];
-  const t=document.getElementById(`msi-${c}-${d}-${si}`);
-  if(t&&t.value!==v)t.value=v;
-}
+function syncSubMobile(c,d,si){const el=document.getElementById(`msi-${c}-${d}-${si}`);if(el)el.value=X[c][d][si];}
+function syncSubDesktop(c,d,si){const el=document.getElementById(`si-${c}-${d}-${si}`);if(el)el.value=X[c][d][si];}
 
-/* ── STICKER PICKER ── */
-function openSP(cycle,day,anchor){
-  pC=cycle;pD=day;buildPG();
+/* ── PICKER DE ADESIVOS ── */
+function openSP(c,d,anchor){
+  pC=c;pD=d;buildPG();
   const p=document.getElementById('stickerPicker');
   document.getElementById('spOv').classList.add('open');p.classList.add('open');
-  posPopup(p,anchor,248,320);
+  posPopup(p,anchor,290,360);
 }
 function closeSP(){
   document.getElementById('stickerPicker').classList.remove('open');
@@ -768,22 +801,34 @@ function closeSP(){
 function buildPG(){
   const g=document.getElementById('pickerGrid');g.innerHTML='';
   const cur=S[pC][pD];
+  /* Sem bebê */
   addPSec(g,'Sem beb\u00ea');
-  TYPES.filter(t=>!t.baby).forEach(t=>addPOpt(g,t,'',cur));
-  TYPES.filter(t=>t.baby).forEach(t=>{
-    addPSec(g,`Beb\u00ea ${t.lbl}`);
-    BADGES.forEach(b=>addPOpt(g,t,b,cur));
+  TYPES.filter(t=>!t.baby).forEach(t=>{
+    BADGES_SEM_BEBE.forEach(b=>addPOpt(g,t,b,cur));
   });
+  /* Bebê branco — pode ter P */
+  addPSec(g,'Beb\u00ea Branco');
+  const wb=TYPES.find(t=>t.id==='white_baby');
+  BADGES_BEBE_BLANC.forEach(b=>addPOpt(g,wb,b,cur));
+  /* Bebê verde — sem P */
+  addPSec(g,'Beb\u00ea Verde');
+  const gb=TYPES.find(t=>t.id==='green_baby');
+  BADGES_BEBE_COR.forEach(b=>addPOpt(g,gb,b,cur));
+  /* Bebê amarelo — sem P */
+  addPSec(g,'Beb\u00ea Amarelo');
+  const yb=TYPES.find(t=>t.id==='yellow_baby');
+  BADGES_BEBE_COR.forEach(b=>addPOpt(g,yb,b,cur));
+  /* Limpar */
   addPSec(g,'A\u00e7\u00e3o');
   const cl=document.createElement('div');cl.className='po';
-  cl.innerHTML=`<span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.2em;background:#f8f8f8;border:1px solid #ccc;">&#x2715;</span><span class="pol">Limpar</span>`;
+  cl.innerHTML=`<span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.4em;background:#f8f8f8;border:1px solid #ccc;">&#x2715;</span><span class="pol">Limpar</span>`;
   cl.onclick=()=>selS(null,'');g.appendChild(cl);
 }
 function addPSec(g,txt){const d=document.createElement('div');d.className='psl';d.textContent=txt;g.appendChild(d);}
 function addPOpt(g,t,b,cur){
   const sel=cur&&cur.type===t.id&&cur.badge===b;
   const opt=document.createElement('div');opt.className='po'+(sel?' sel':'');
-  opt.innerHTML=mksvg(t.id,b,34)+`<span class="pol">${b||(!t.baby?t.lbl:'—')}</span>`;
+  opt.innerHTML=mksvg(t.id,b,34)+`<span class="pol">${b||(t.baby?'\u2014':t.lbl)}</span>`;
   opt.onclick=()=>selS(t.id,b);g.appendChild(opt);
 }
 function selS(tid,b){
@@ -792,9 +837,9 @@ function selS(tid,b){
 }
 
 /* ── CALENDÁRIO ── */
-function openCal(cycle,day,anchor){
-  cC=cycle;cD=day;
-  const ex=D[cycle][day];const base=ex?pDate(ex):null;
+function openCal(c,d,anchor){
+  cC=c;cD=d;
+  const ex=D[c][d];const base=ex?pDateStored(ex):null;
   const ref=base||new Date();cY=ref.getFullYear();cM=ref.getMonth();
   renderCal();
   const p=document.getElementById('calPopup');
@@ -805,196 +850,176 @@ function closeCal(){
   document.getElementById('calPopup').classList.remove('open');
   document.getElementById('calOv').classList.remove('open');cC=cD=-1;
 }
-function calShift(dir){cM+=dir;if(cM>11){cM=0;cY++;}if(cM<0){cM=11;cY--;}renderCal();}
+/* Parseia dd/mm/aaaa ou dd/mm */
+function pDateStored(s){
+  const parts=s.split('/');
+  const day=parseInt(parts[0]);
+  const mon=parseInt(parts[1])-1;
+  const yr=parts[2]?parseInt(parts[2]):new Date().getFullYear();
+  return new Date(yr,mon,day);
+}
+/* Salva apenas dd/mm */
+function fDateStore(dt){
+  return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
+}
+function calNav(dir){cM+=dir;if(cM<0){cM=11;cY--;}if(cM>11){cM=0;cY++;}renderCal();}
 function renderCal(){
-  document.getElementById('calLabel').textContent=`${MN[cM]} ${cY}`;
   const g=document.getElementById('calGrid');g.innerHTML='';
-  DW.forEach(d=>{const el=document.createElement('div');el.className='cdw';el.textContent=d;g.appendChild(el);});
-  const fdow=new Date(cY,cM,1).getDay(),dim=new Date(cY,cM+1,0).getDate(),t=new Date();
-  for(let i=0;i<fdow;i++){const e=document.createElement('div');e.className='cdy emp';g.appendChild(e);}
-  for(let d=1;d<=dim;d++){
+  document.getElementById('calLabel').textContent=MN[cM].slice(0,3)+' '+cY;
+  DW.forEach(dw=>{const h=document.createElement('div');h.className='cdw';h.textContent=dw;g.appendChild(h);});
+  const first=new Date(cY,cM,1).getDay();
+  const days=new Date(cY,cM+1,0).getDate();
+  const today=new Date();
+  const sel=D[cC][cD]?pDateStored(D[cC][cD]):null;
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cdy emp';g.appendChild(e);}
+  for(let d=1;d<=days;d++){
+    const dt=new Date(cY,cM,d);
     const el=document.createElement('div');el.className='cdy';
-    if(d===t.getDate()&&cM===t.getMonth()&&cY===t.getFullYear())el.classList.add('today');
-    el.textContent=d;el.onclick=()=>selDate(d);g.appendChild(el);
+    if(dt.toDateString()===today.toDateString())el.classList.add('today');
+    if(sel&&dt.toDateString()===sel.toDateString())el.style.cssText='background:var(--navy);color:#fff;';
+    el.textContent=d;
+    el.addEventListener('click',()=>{
+      D[cC][cD]=fDateStore(dt);
+      autoFillDates(cC,cD);
+      refreshAll();closeCal();scheduleSave();
+    });
+    g.appendChild(el);
   }
-}
-function selDate(day){
-  const f=String(day).padStart(2,'0')+'/'+String(cM+1).padStart(2,'0');
-  applyDate(cC,cD,f);closeCal();
-}
-function pDate(str){
-  const p=str.split('/');if(p.length!==2)return null;
-  const d=parseInt(p[0],10),m=parseInt(p[1],10)-1;
-  if(isNaN(d)||isNaN(m))return null;
-  return new Date(new Date().getFullYear(),m,d);
-}
-function fDate(dt){return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');}
-function applyDate(cycle,anchor,fmtd){
-  D[cycle][anchor]=fmtd;
-  const base=pDate(fmtd);
-  for(let d=0;d<ND;d++){
-    if(d!==anchor&&base){const dt=new Date(base);dt.setDate(base.getDate()+(d-anchor));D[cycle][d]=fDate(dt);}
-    refreshDate(cycle,d);
-  }
-  scheduleSave();
 }
 
-/* ── RELATÓRIO (só dias preenchidos) ── */
+/* ── RELATÓRIO ── */
 function openReport(){
   const lines=[];
-  const sep='-'.repeat(46);
-  lines.push('CICLO MENSTRUAL \u2014 Creighton Tools');
-  lines.push(`Data: ${new Date().toLocaleDateString('pt-BR')}`);
-  lines.push('');
   for(let c=0;c<NC;c++){
-    const last=lastFilledDay(c);
-    if(last<0)continue;
-    lines.push(sep);
-    lines.push(`CICLO ${c+1}`);
-    lines.push(sep);
-    lines.push('Dia  | Data  | Descrição do muco');
-    lines.push('-'.repeat(80));
-    for(let d=0;d<=last;d++){
-      if(!S[c][d]&&!D[c][d]&&X[c][d].every(v=>!v))continue;
-      const xs=X[c][d];
-      const descStr=[xs[0],xs[1],xs[2]].filter(v=>v).join(' / ')||'\u2014';
+    lines.push(`=== Ciclo ${c+1} ===`);
+    lines.push('Dia  | Data  | Descri\u00e7\u00e3o');
+    lines.push('\u2500'.repeat(38));
+    for(let d=0;d<ND;d++){
+      const descStr=X[c][d].filter(v=>v).join(' / ')||'\u2014';
       lines.push(`${String(d+1).padEnd(4)} | ${(D[c][d]||'\u2014').padEnd(5)} | ${descStr}`);
     }
     lines.push('');
   }
-  document.getElementById('reportOutput').value=lines.join('\n');
-  document.getElementById('reportModal').classList.add('open');
+  document.getElementById('reportText').textContent=lines.join('\n');
+  document.getElementById('rpModal').classList.add('open');
+  document.getElementById('rpOv').classList.add('open');
 }
-function closeReport(){document.getElementById('reportModal').classList.remove('open');}
+function closeReport(){
+  document.getElementById('rpModal').classList.remove('open');
+  document.getElementById('rpOv').classList.remove('open');
+}
 function copyReport(){
-  const ta=document.getElementById('reportOutput');ta.select();ta.setSelectionRange(0,99999);
-  const msg=document.getElementById('copyMsg');
-  const ok=()=>{msg.style.display='inline';setTimeout(()=>msg.style.display='none',2000);};
-  navigator.clipboard&&navigator.clipboard.writeText(ta.value).then(ok)
-    .catch(()=>{document.execCommand('copy');ok();});
+  navigator.clipboard.writeText(document.getElementById('reportText').textContent)
+    .then(()=>alert('Relatório copiado!'))
+    .catch(()=>alert('Não foi possível copiar.'));
 }
 
-/* ── SHARE ── */
+/* ── COMPARTILHAR ── */
 function openShareModal(){
   const url=buildShareUrl();
-  document.getElementById('shareUrlBox').textContent=url;
+  document.getElementById('shareUrlText').textContent=url;
   document.getElementById('shareModal').classList.add('open');
+  document.getElementById('shareOv').classList.add('open');
 }
-function closeShareModal(){document.getElementById('shareModal').classList.remove('open');}
+function closeShareModal(){
+  document.getElementById('shareModal').classList.remove('open');
+  document.getElementById('shareOv').classList.remove('open');
+}
 function copyShareUrl(){
-  const url=buildShareUrl();
-  const msg=document.getElementById('copyShareMsg');
-  const ok=()=>{msg.style.display='inline';setTimeout(()=>msg.style.display='none',2000);};
-  navigator.clipboard&&navigator.clipboard.writeText(url).then(ok)
-    .catch(()=>{const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);ok();});
+  navigator.clipboard.writeText(document.getElementById('shareUrlText').textContent)
+    .then(()=>alert('Link copiado!'))
+    .catch(()=>alert('Não foi possível copiar.'));
 }
 function shareWA(){
-  window.open(`https://wa.me/?text=${encodeURIComponent(buildShareUrl())}`,'_blank','noopener,noreferrer');
+  const url=encodeURIComponent(document.getElementById('shareUrlText').textContent);
+  window.open('https://wa.me/?text='+url,'_blank');
 }
 
-/* ── EXPORT PNG (apenas tabela, apenas dias preenchidos) ── */
+/* ── EXPORT JPG ── */
 function exportPNG(){
-  if(!window.html2canvas){alert('html2canvas não carregado.');return;}
   const prog=document.getElementById('prog');prog.classList.add('open');
-
-  /* Monta tabela clonada com apenas os dias preenchidos */
   const wrap=document.getElementById('exportWrap');
-  wrap.innerHTML='';
+  wrap.innerHTML='';wrap.style.cssText='position:fixed;left:-9999px;top:0;background:#fff;padding:12px;';
 
-  /* cabeçalho de título */
-  const title=document.createElement('div');
-  title.style.cssText='font-family:VT323,monospace;font-size:16px;color:#000080;padding:4px 8px 6px;letter-spacing:.06em;';
-  title.textContent='Ciclo Menstrual — Creighton Tools  |  '+new Date().toLocaleDateString('pt-BR');
-  wrap.appendChild(title);
+  /* Para cada ciclo, calcula até qual coluna tudo está preenchido (adesivo + data + pelo menos 1 sublinha de muco) */
+  function lastCompleteDay(c){
+    let last=-1;
+    for(let d=0;d<ND;d++){
+      const hasSticker=!!S[c][d];
+      const hasDate=!!D[c][d];
+      const hasMuco=X[c][d].some(v=>v.trim()!=='');
+      if(hasSticker&&hasDate&&hasMuco) last=d;
+      else break; /* para na primeira coluna incompleta */
+    }
+    return last;
+  }
+
+  const cw=52;
+  let anyContent=false;
 
   for(let c=0;c<NC;c++){
-    const last=lastFilledDay(c);
-    if(last<0)continue;
-    const days=[];
-    for(let d=0;d<=last;d++)days.push(d);
-
-    const ch=document.createElement('div');
-    ch.style.cssText='background:linear-gradient(to right,#000080,#003090);color:#fff;font-family:VT323,monospace;font-size:13px;letter-spacing:.06em;padding:3px 8px;margin-top:6px;';
-    ch.textContent=`▸ Ciclo ${c+1}`;wrap.appendChild(ch);
+    const maxDay=lastCompleteDay(c);
+    if(maxDay<0) continue; /* ciclo vazio — pula */
+    anyContent=true;
+    const days=Array.from({length:maxDay+1},(_,i)=>i);
 
     const tbl=document.createElement('table');
-    tbl.style.cssText='border-collapse:collapse;table-layout:fixed;background:#fff;border:1px solid #888;margin-bottom:4px;';
-    const cw=54;
+    tbl.style.cssText='border-collapse:collapse;margin-bottom:10px;background:#fff;font-family:Share Tech Mono,Courier New,monospace;';
 
-    /* cabeçalho dias */
-    const thead=document.createElement('thead');
-    const hrw=document.createElement('tr');
-    /* col rótulo */
-    const thrl=document.createElement('th');
-    thrl.style.cssText=`width:52px;min-width:52px;background:linear-gradient(to bottom,#1a1a8e,#000080);color:#fff;font-family:VT323,monospace;font-size:11px;padding:2px;border:1px solid #666;text-align:center;`;
-    thrl.textContent='Dia';hrw.appendChild(thrl);
-    days.forEach(d=>{
-      const th=document.createElement('th');
-      th.style.cssText=`width:${cw}px;min-width:${cw}px;background:linear-gradient(to bottom,#1a1a8e,#000080);color:#fff;font-family:VT323,monospace;font-size:12px;text-align:center;border:1px solid #666;padding:2px 0;`;
-      th.textContent=d+1;hrw.appendChild(th);
-    });
-    thead.appendChild(hrw);tbl.appendChild(thead);
+    /* título */
+    const tRow=document.createElement('tr');
+    const tTd=document.createElement('td');tTd.setAttribute('colspan',days.length+1);
+    tTd.style.cssText='background:#000080;color:#fff;font-family:VT323,monospace;font-size:13px;padding:4px 8px;letter-spacing:.06em;';
+    tTd.textContent=`Ciclo ${c+1}`;tRow.appendChild(tTd);tbl.appendChild(tRow);
 
-    const tbody=document.createElement('tbody');
+    /* numeração */
+    const nRow=document.createElement('tr');
+    const nTd=document.createElement('td');nTd.style.cssText='width:52px;background:#e8e8e8;border:1px solid #aaa;';nRow.appendChild(nTd);
+    days.forEach(d=>{const td=document.createElement('td');td.style.cssText=`width:${cw}px;background:#000080;color:#fff;font-family:VT323,monospace;font-size:11px;text-align:center;border:1px solid #000060;padding:2px 0;`;td.textContent=d+1;nRow.appendChild(td);});
+    tbl.appendChild(nRow);
 
-    /* row adesivos */
-    const srow=makeExRow('Adesivo',days,cw,d=>{
-      const td=document.createElement('td');
-      td.style.cssText=`width:${cw}px;min-width:${cw}px;border:1px solid #b0b0b0;padding:0;text-align:center;vertical-align:middle;height:${cw}px;`;
-      const s=S[c][d];
-      if(s)td.innerHTML=mksvg(s.type,s.badge,cw-4);
-      else{td.style.background='#f0f0f0';}
-      return td;
-    });
-    tbody.appendChild(srow);
+    /* adesivos */
+    const sRow=document.createElement('tr');
+    const sLbl=document.createElement('td');sLbl.style.cssText='width:52px;background:linear-gradient(to bottom,#f0f0f0,#d8d8d8);font-family:VT323,monospace;font-size:10px;color:#000080;text-align:center;border:1px solid #aaa;padding:2px;vertical-align:middle;';sLbl.textContent='Adesivo';sRow.appendChild(sLbl);
+    days.forEach(d=>{const td=document.createElement('td');td.style.cssText=`width:${cw}px;height:${cw}px;border:1px solid #d0d0d0;padding:0;`;td.innerHTML=S[c][d]?mksvg(S[c][d].type,S[c][d].badge,cw):emptysvg();sRow.appendChild(td);});
+    tbl.appendChild(sRow);
 
-    /* row data */
-    const drow=makeExRow('Data',days,cw,d=>{
-      const td=document.createElement('td');
-      td.style.cssText=`border:1px solid #b0b0b0;padding:2px 1px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:#000080;background:#fff;`;
-      td.textContent=D[c][d]||'—';return td;
-    });
-    tbody.appendChild(drow);
+    /* datas */
+    const dRow=document.createElement('tr');
+    const dLbl=document.createElement('td');dLbl.style.cssText='width:52px;background:linear-gradient(to bottom,#f0f0f0,#d8d8d8);font-family:VT323,monospace;font-size:10px;color:#000080;text-align:center;border:1px solid #aaa;padding:2px;vertical-align:middle;';dLbl.textContent='Data';dRow.appendChild(dLbl);
+    days.forEach(d=>{const td=document.createElement('td');td.style.cssText=`border:1px solid #d0d0d0;padding:2px 1px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:#000;background:#fff;`;td.textContent=fmtDateDisplay(D[c][d]);dRow.appendChild(td);});
+    tbl.appendChild(dRow);
 
-    /* linha de descrição unificada no PNG */
-    const descExRow=makeExRow('Muco',days,cw,d=>{
-      const td=document.createElement('td');
-      td.style.cssText=`border:1px solid #d0d0d0;padding:2px 1px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:8px;color:#000;background:#fff;word-break:break-all;line-height:1.4;vertical-align:top;`;
-      td.innerHTML=X[c][d].filter(v=>v).map(v=>`<div>${v}</div>`).join('')||'';return td;
-    });
-    tbody.appendChild(descExRow);
-    tbl.appendChild(tbody);
+    /* descrição muco */
+    const xRow=document.createElement('tr');
+    const xLbl=document.createElement('td');xLbl.style.cssText='width:52px;background:linear-gradient(to bottom,#f0f0f0,#d8d8d8);font-family:VT323,monospace;font-size:10px;color:#000080;text-align:center;border:1px solid #aaa;padding:2px;vertical-align:middle;';xLbl.textContent='Muco';xRow.appendChild(xLbl);
+    days.forEach(d=>{const td=document.createElement('td');td.style.cssText=`border:1px solid #d0d0d0;padding:2px 1px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:8px;color:#000;background:#fff;word-break:break-all;line-height:1.4;vertical-align:top;`;td.innerHTML=X[c][d].filter(v=>v).map(v=>`<div>${v}</div>`).join('')||'';xRow.appendChild(td);});
+    tbl.appendChild(xRow);
+
     wrap.appendChild(tbl);
   }
 
-  /* posicionar para captura */
-  wrap.style.left='0';wrap.style.top='0';wrap.style.position='absolute';
-  wrap.style.zIndex='-1';wrap.style.background='#f8f8f8';wrap.style.padding='10px';
+  if(!anyContent){
+    prog.classList.remove('open');
+    alert('Nenhum ciclo está completamente preenchido (adesivo + data + muco) para exportar.');
+    return;
+  }
 
   setTimeout(()=>{
-    html2canvas(wrap,{backgroundColor:'#f8f8f8',scale:2,useCORS:true,logging:false,
-      windowWidth:wrap.scrollWidth+20,width:wrap.scrollWidth})
+    html2canvas(wrap,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false})
     .then(canvas=>{
       const a=document.createElement('a');
-      a.download=`ciclo-${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.png`;
-      a.href=canvas.toDataURL('image/png');a.click();
-    }).catch(e=>{console.error(e);alert('Erro ao exportar PNG.');})
-    .finally(()=>{prog.classList.remove('open');wrap.innerHTML='';wrap.style.left='-9999px';});
+      a.download=`ciclo-creighton-${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.jpg`;
+      a.href=canvas.toDataURL('image/jpeg',0.88);
+      a.click();
+    }).catch(e=>{console.error(e);alert('Erro ao exportar JPG.');})
+    .finally(()=>{prog.classList.remove('open');wrap.innerHTML='';});
   },150);
-}
-
-function makeExRow(label,days,cw,cellFn){
-  const tr=document.createElement('tr');
-  const rl=document.createElement('td');
-  rl.style.cssText='width:52px;min-width:52px;background:linear-gradient(to bottom,#f0f0f0,#d8d8d8);font-family:VT323,monospace;font-size:10px;color:#000080;text-align:center;border:1px solid #aaa;padding:2px;vertical-align:middle;';
-  rl.textContent=label;tr.appendChild(rl);
-  days.forEach(d=>tr.appendChild(cellFn(d)));
-  return tr;
 }
 
 /* ── RESET ── */
 function confirmReset(){
-  if(!window.confirm('Resetar todos os dados dos 3 ciclos?'))return;
+  if(!window.confirm(`Resetar todos os dados dos ${NC} ciclo(s)?`))return;
   for(let c=0;c<NC;c++)for(let d=0;d<ND;d++){S[c][d]=null;D[c][d]='';X[c][d]=['','',''];}
   refreshAll();history.replaceState(null,'',location.pathname);
   document.getElementById('saveStatus').textContent='Resetado';
@@ -1016,11 +1041,17 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ── INIT ── */
-buildDesktopTable();
-buildMobileView();
-const loaded=loadFromHash();
-refreshAll();
-if(loaded)document.getElementById('saveStatus').textContent='Restaurado \u2713';
+(function(){
+  const container=document.getElementById('cyclesContainer');
+  container.appendChild(buildCycleBlock(0));
+  const loaded=loadFromHash();
+  if(loaded){
+    /* se o hash tinha mais ciclos, reconstruir blocos extras */
+    for(let c=1;c<NC;c++)container.appendChild(buildCycleBlock(c));
+  }
+  refreshAll();
+  if(loaded)document.getElementById('saveStatus').textContent='Restaurado \u2713';
+})();
 </script>
 </body>
 </html>
