@@ -1,363 +1,381 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Ferramentas do Sistema Creighton para acompanhamento de fertilidade.">
-  <meta name="theme-color" content="#008080">
-  <title>Creighton Tools</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ferramentas do Sistema Creighton para acompanhamento de fertilidade.">
+<meta name="theme-color" content="#008080">
+<title>Creighton Tools</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --teal: #008080;
+    --teal-dark: #005f5f;
+    --teal-light: #00aaaa;
+    --silver: #c0c0c0;
+    --silver-dark: #808080;
+    --silver-light: #e0e0e0;
+    --white: #ffffff;
+    --black: #000000;
+    --navy: #000080;
+    --yellow: #ffff00;
+    --scanline: rgba(0,0,0,0.06);
+  }
 
-    :root {
-      --teal:        #008080;
-      --teal-dark:   #005f5f;
-      --teal-light:  #00aaaa;
-      --silver:      #c0c0c0;
-      --silver-dark: #808080;
-      --silver-light:#e0e0e0;
-      --white:       #ffffff;
-      --black:       #000000;
-      --navy:        #000080;
-      --yellow:      #ffff00;
-      --scanline:    rgba(0,0,0,0.06);
-    }
+  html, body {
+    height: 100%;
+    min-height: 100vh;
+  }
 
-    html, body { height: 100%; min-height: 100vh; }
+  body {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    background-color: var(--teal);
+    background-image: repeating-linear-gradient(
+      0deg,
+      var(--scanline) 0px,
+      var(--scanline) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+  }
 
-    body {
-      font-family: 'Share Tech Mono', 'Courier New', monospace;
-      background-color: var(--teal);
-      background-image: repeating-linear-gradient(
-        0deg,
-        var(--scanline) 0px, var(--scanline) 1px,
-        transparent 1px, transparent 3px
-      );
-      display: flex;
-      flex-direction: column;
-      user-select: none;
-    }
+  /* BARRA DE TÍTULO */
+  .desktop-bar {
+    background: linear-gradient(to right, var(--navy), #1084d0);
+    color: var(--white);
+    font-family: 'VT323', monospace;
+    font-size: 1.15em;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--black);
+    flex-shrink: 0;
+  }
 
-    /* ── BARRA DE TÍTULO ── */
-    .desktop-bar {
-      background: linear-gradient(to right, var(--navy), #1084d0);
-      color: var(--white);
-      font-family: 'VT323', monospace;
-      font-size: 1.15em;
-      padding: 5px 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      letter-spacing: 0.05em;
-      border-bottom: 2px solid var(--black);
-      flex-shrink: 0;
-    }
+  .desktop-bar .bar-icon {
+    font-size: 1.2em;
+  }
 
-    .desktop-bar .bar-icon { font-size: 1.2em; }
+  .desktop-bar .bar-clock {
+    margin-left: auto;
+    font-size: 0.95em;
+    color: #a8d4ff;
+    letter-spacing: 0.08em;
+  }
 
-    .desktop-bar .bar-clock {
-      margin-left: auto;
-      font-size: 0.95em;
-      color: #a8d4ff;
-      letter-spacing: 0.08em;
-    }
+  /* ÁREA DO DESKTOP */
+  .desktop {
+    flex: 1;
+    padding: 20px 16px 80px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 8px;
+  }
 
-    /* ── ÁREA DO DESKTOP ── */
+  /* ÍCONE */
+  .icon-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 2px;
+    padding: 6px 4px 4px;
+    transition: border-color 0.1s;
+    text-decoration: none;
+  }
+
+  .icon-wrapper:hover,
+  .icon-wrapper:focus {
+    border-color: var(--yellow);
+    background: rgba(255,255,255,0.08);
+    outline: none;
+  }
+
+  .icon-wrapper:active .icon-box {
+    filter: brightness(1.3);
+  }
+
+  .icon-box {
+    width: 52px;
+    height: 52px;
+    background: var(--silver);
+    border-top: 3px solid var(--white);
+    border-left: 3px solid var(--white);
+    border-right: 3px solid var(--silver-dark);
+    border-bottom: 3px solid var(--silver-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9em;
+    position: relative;
+    image-rendering: pixelated;
+  }
+
+  .icon-box::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.7);
+  }
+
+  .icon-label {
+    margin-top: 5px;
+    font-family: 'VT323', monospace;
+    font-size: 0.88em;
+    color: var(--white);
+    text-align: center;
+    line-height: 1.2;
+    text-shadow: 1px 1px 0 var(--black);
+    word-break: break-word;
+    max-width: 76px;
+  }
+
+  /* TOOLTIP */
+  .tooltip {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    background: var(--silver-light);
+    color: var(--black);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75em;
+    border-top: 2px solid var(--white);
+    border-left: 2px solid var(--white);
+    border-right: 2px solid var(--silver-dark);
+    border-bottom: 2px solid var(--silver-dark);
+    padding: 5px 9px;
+    max-width: 200px;
+    line-height: 1.4;
+    pointer-events: none;
+    box-shadow: 2px 2px 0 var(--black);
+  }
+
+  /* BARRA DE TAREFAS */
+  .taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    background: var(--silver);
+    border-top: 2px solid var(--white);
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    gap: 6px;
+    z-index: 100;
+  }
+
+  .btn-start {
+    font-family: 'VT323', monospace;
+    font-size: 1.05em;
+    font-weight: bold;
+    background: var(--silver);
+    color: var(--black);
+    border-top: 2px solid var(--white);
+    border-left: 2px solid var(--white);
+    border-right: 2px solid var(--silver-dark);
+    border-bottom: 2px solid var(--silver-dark);
+    padding: 2px 10px;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 26px;
+  }
+
+  .btn-start:active {
+    border-top: 2px solid var(--silver-dark);
+    border-left: 2px solid var(--silver-dark);
+    border-right: 2px solid var(--white);
+    border-bottom: 2px solid var(--white);
+  }
+
+  .taskbar-sep {
+    width: 2px;
+    height: 22px;
+    border-left: 1px solid var(--silver-dark);
+    border-right: 1px solid var(--white);
+    margin: 0 2px;
+  }
+
+  .taskbar-clock {
+    margin-left: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.82em;
+    color: var(--black);
+    background: var(--silver);
+    border-top: 1px solid var(--silver-dark);
+    border-left: 1px solid var(--silver-dark);
+    border-right: 1px solid var(--white);
+    border-bottom: 1px solid var(--white);
+    padding: 2px 8px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.05em;
+  }
+
+  /* MENU START */
+  .start-menu {
+    display: none;
+    position: fixed;
+    bottom: 36px;
+    left: 0;
+    width: 220px;
+    background: var(--silver);
+    border-top: 2px solid var(--white);
+    border-left: 2px solid var(--white);
+    border-right: 2px solid var(--silver-dark);
+    border-bottom: 2px solid var(--silver-dark);
+    z-index: 200;
+    box-shadow: 3px 3px 0 var(--black);
+  }
+
+  .start-menu.open {
+    display: block;
+  }
+
+  .start-menu-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 28px;
+    background: linear-gradient(to top, var(--navy), #1084d0);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+  }
+
+  .start-menu-sidebar span {
+    font-family: 'VT323', monospace;
+    font-size: 1em;
+    color: var(--white);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    letter-spacing: 0.1em;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  }
+
+  .start-menu-items {
+    margin-left: 28px;
+    padding: 4px 0;
+  }
+
+  .start-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.82em;
+    color: var(--black);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .start-menu-item:hover {
+    background: var(--navy);
+    color: var(--white);
+  }
+
+  .start-menu-divider {
+    border: none;
+    border-top: 1px solid var(--silver-dark);
+    border-bottom: 1px solid var(--white);
+    margin: 3px 4px;
+  }
+
+  /* RESPONSIVO */
+  @media (min-width: 480px) {
     .desktop {
-      flex: 1;
-      padding: 20px 16px 80px;
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      gap: 8px;
+      gap: 12px;
+      padding: 24px 20px 80px;
     }
-
-    /* ── ÍCONE ── */
     .icon-wrapper {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 80px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      border-radius: 2px;
-      padding: 6px 4px 4px;
-      transition: border-color 0.1s;
-      text-decoration: none;
+      width: 88px;
     }
+  }
 
-    .icon-wrapper:hover,
-    .icon-wrapper:focus {
-      border-color: var(--yellow);
-      background: rgba(255,255,255,0.08);
-      outline: none;
+  @media (min-width: 768px) {
+    .desktop {
+      gap: 16px;
+      padding: 28px 28px 80px;
     }
-
-    .icon-wrapper:active .icon-box {
-      filter: brightness(1.3);
-    }
-
-    .icon-box {
-      width: 52px;
-      height: 52px;
-      background: var(--silver);
-      border-top: 3px solid var(--white);
-      border-left: 3px solid var(--white);
-      border-right: 3px solid var(--silver-dark);
-      border-bottom: 3px solid var(--silver-dark);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.9em;
-      position: relative;
-      image-rendering: pixelated;
-    }
-
-    .icon-box::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 6px;
-      height: 6px;
-      background: rgba(255,255,255,0.7);
-    }
-
-    .icon-label {
-      margin-top: 5px;
-      font-family: 'VT323', monospace;
-      font-size: 0.88em;
-      color: var(--white);
-      text-align: center;
-      line-height: 1.2;
-      text-shadow: 1px 1px 0 var(--black);
-      word-break: break-word;
-      max-width: 76px;
-    }
-
-    /* ── TOOLTIP ── */
-    .tooltip {
-      display: none;
-      position: fixed;
-      z-index: 999;
-      background: var(--silver-light);
-      color: var(--black);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.75em;
-      border-top: 2px solid var(--white);
-      border-left: 2px solid var(--white);
-      border-right: 2px solid var(--silver-dark);
-      border-bottom: 2px solid var(--silver-dark);
-      padding: 5px 9px;
-      max-width: 200px;
-      line-height: 1.4;
-      pointer-events: none;
-      box-shadow: 2px 2px 0 var(--black);
-    }
-
-    /* ── BARRA DE TAREFAS ── */
-    .taskbar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 36px;
-      background: var(--silver);
-      border-top: 2px solid var(--white);
-      display: flex;
-      align-items: center;
-      padding: 0 6px;
-      gap: 6px;
-      z-index: 100;
-    }
-
-    .btn-start {
-      font-family: 'VT323', monospace;
-      font-size: 1.05em;
-      font-weight: bold;
-      background: var(--silver);
-      color: var(--black);
-      border-top: 2px solid var(--white);
-      border-left: 2px solid var(--white);
-      border-right: 2px solid var(--silver-dark);
-      border-bottom: 2px solid var(--silver-dark);
-      padding: 2px 10px;
-      cursor: pointer;
-      letter-spacing: 0.03em;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      height: 26px;
-    }
-
-    .btn-start:active {
-      border-top: 2px solid var(--silver-dark);
-      border-left: 2px solid var(--silver-dark);
-      border-right: 2px solid var(--white);
-      border-bottom: 2px solid var(--white);
-    }
-
-    .taskbar-sep {
-      width: 2px;
-      height: 22px;
-      border-left: 1px solid var(--silver-dark);
-      border-right: 1px solid var(--white);
-      margin: 0 2px;
-    }
-
-    .taskbar-clock {
-      margin-left: auto;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.82em;
-      color: var(--black);
-      background: var(--silver);
-      border-top: 1px solid var(--silver-dark);
-      border-left: 1px solid var(--silver-dark);
-      border-right: 1px solid var(--white);
-      border-bottom: 1px solid var(--white);
-      padding: 2px 8px;
-      height: 26px;
-      display: flex;
-      align-items: center;
-      letter-spacing: 0.05em;
-    }
-
-    /* ── MENU START ── */
-    .start-menu {
-      display: none;
-      position: fixed;
-      bottom: 36px;
-      left: 0;
-      width: 220px;
-      background: var(--silver);
-      border-top: 2px solid var(--white);
-      border-left: 2px solid var(--white);
-      border-right: 2px solid var(--silver-dark);
-      border-bottom: 2px solid var(--silver-dark);
-      z-index: 200;
-      box-shadow: 3px 3px 0 var(--black);
-    }
-
-    .start-menu.open { display: block; }
-
-    .start-menu-sidebar {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 28px;
-      background: linear-gradient(to top, var(--navy), #1084d0);
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: 6px;
-    }
-
-    .start-menu-sidebar span {
-      font-family: 'VT323', monospace;
-      font-size: 1em;
-      color: var(--white);
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transform: rotate(180deg);
-      letter-spacing: 0.1em;
-      text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
-    }
-
-    .start-menu-items { margin-left: 28px; padding: 4px 0; }
-
-    .start-menu-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.82em;
-      color: var(--black);
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .start-menu-item:hover {
-      background: var(--navy);
-      color: var(--white);
-    }
-
-    .start-menu-divider {
-      border: none;
-      border-top: 1px solid var(--silver-dark);
-      border-bottom: 1px solid var(--white);
-      margin: 3px 4px;
-    }
-
-    /* ── RESPONSIVO ── */
-    @media (min-width: 480px) {
-      .desktop { gap: 12px; padding: 24px 20px 80px; }
-      .icon-wrapper { width: 88px; }
-    }
-
-    @media (min-width: 768px) {
-      .desktop { gap: 16px; padding: 28px 28px 80px; }
-    }
-  </style>
+  }
+</style>
 </head>
-
 <body>
 
 <div class="desktop-bar">
-  <span class="bar-icon">🖥</span>
+  <span class="bar-icon">🖥️</span>
   <span>Creighton Tools v1.0</span>
   <span class="bar-clock" id="top-clock"></span>
 </div>
 
 <div class="desktop" id="desktop" onclick="closeStartMenu(event)">
 
-  <!-- Ícone: Calculadora ETC/ETA -->
-  <a class="icon-wrapper"
-     href="etc-eta.html"
-     tabindex="0"
-     aria-label="Calculadora ETC/ETA"
-     onmouseenter="showTooltip(event, this)"
-     onmouseleave="hideTooltip()"
-     onfocus="showTooltip(event, this)"
-     onblur="hideTooltip()">
-    <div class="icon-box">🗓️</div>
+  <!-- Ícone Calculadora ETC/ETA -->
+  <a class="icon-wrapper" href="etc-eta.html" tabindex="0" aria-label="Calculadora ETC/ETA"
+     onmouseenter="showTooltip(event, this)" onmouseleave="hideTooltip()"
+     onfocus="showTooltip(event, this)" onblur="hideTooltip()">
+    <div class="icon-box">📅</div>
     <span class="icon-label">Calc. ETC/ETA</span>
   </a>
 
-  <!-- Ícone: Calculadora MCS -->
-  <a class="icon-wrapper"
-     href="mcs.html"
-     tabindex="0"
-     aria-label="Calculadora MCS"
-     onmouseenter="showTooltip(event, this)"
-     onmouseleave="hideTooltip()"
-     onfocus="showTooltip(event, this)"
-     onblur="hideTooltip()">
-    <div class="icon-box">🧪</div>
+  <!-- Ícone Calculadora MCS -->
+  <a class="icon-wrapper" href="mcs.html" tabindex="0" aria-label="Calculadora MCS"
+     onmouseenter="showTooltip(event, this)" onmouseleave="hideTooltip()"
+     onfocus="showTooltip(event, this)" onblur="hideTooltip()">
+    <div class="icon-box">🧮</div>
     <span class="icon-label">Calc. MCS</span>
   </a>
 
-  <!-- Ícone: Acompanhamento do Ciclo -->
-  <a class="icon-wrapper"
-     href="track.html"
-     tabindex="0"
-     aria-label="Acompanhamento do Ciclo"
-     onmouseenter="showTooltip(event, this)"
-     onmouseleave="hideTooltip()"
-     onfocus="showTooltip(event, this)"
-     onblur="hideTooltip()">
-    <div class="icon-box">📋</div>
+  <!-- Ícone Acompanhamento do Ciclo -->
+  <a class="icon-wrapper" href="track.html" tabindex="0" aria-label="Acompanhamento do Ciclo"
+     onmouseenter="showTooltip(event, this)" onmouseleave="hideTooltip()"
+     onfocus="showTooltip(event, this)" onblur="hideTooltip()">
+    <div class="icon-box">📈</div>
     <span class="icon-label">Acomp. Ciclo</span>
   </a>
 
-</div>
+  <!-- Ícone Agenda -->
+  <a class="icon-wrapper" href="cal/agenda.html" tabindex="0" aria-label="Agenda"
+     onmouseenter="showTooltip(event, this)" onmouseleave="hideTooltip()"
+     onfocus="showTooltip(event, this)" onblur="hideTooltip()">
+    <div class="icon-box">🗓️</div>
+    <span class="icon-label">Agenda</span>
+  </a>
 
-<div class="tooltip" id="tooltip"></div>
+  <div class="tooltip" id="tooltip"></div>
+</div>
 
 <div class="taskbar">
   <button class="btn-start" onclick="toggleStartMenu(event)">
-    <span>⊞</span> Início
+    <span>🖥️</span> Início
   </button>
   <div class="taskbar-sep"></div>
   <div class="taskbar-clock" id="taskbar-clock"></div>
@@ -368,87 +386,26 @@
     <span>Creighton Tools</span>
   </div>
   <div class="start-menu-items">
-    <a class="start-menu-item" href="etc-eta.html">
-      <span>🗓️</span> Calc. ETC / ETA
-    </a>
-    <a class="start-menu-item" href="mcs.html">
-      <span>🧪</span> Calc. MCS
-    </a>
-    <a class="start-menu-item" href="track.html">
-      <span>📋</span> Acomp. Ciclo
-    </a>
+    <a class="start-menu-item" href="etc-eta.html"><span>📅</span> Calc. ETC/ETA</a>
+    <a class="start-menu-item" href="mcs.html"><span>🧮</span> Calc. MCS</a>
+    <a class="start-menu-item" href="track.html"><span>📈</span> Acomp. Ciclo</a>
+    <a class="start-menu-item" href="cal/agenda.html"><span>🗓️</span> Agenda</a>
     <hr class="start-menu-divider">
-    <div class="start-menu-item" onclick="closeStartMenu()">
-      <span>✖</span> Fechar menu
-    </div>
+    <div class="start-menu-item" onclick="closeStartMenu()"><span>❌</span> Fechar menu</div>
   </div>
 </div>
 
 <script>
-  /* ── RELÓGIO ── */
+  // RELÓGIO
   function updateClock() {
     const now = new Date();
-    const hh  = String(now.getHours()).padStart(2,'0');
-    const mm  = String(now.getMinutes()).padStart(2,'0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
     const str = `${hh}:${mm}`;
     document.getElementById('taskbar-clock').textContent = str;
-    document.getElementById('top-clock').textContent     = str;
+    document.getElementById('top-clock').textContent = str;
   }
   updateClock();
   setInterval(updateClock, 10000);
 
-  /* ── TOOLTIP ── */
-  const DESCRIPTIONS = {
-    'Calc. ETC/ETA': 'Calcula ETC e ETA pelo Sistema Creighton com base nas relações sexuais e no Dia Pico.',
-    'Calc. MCS':     'Calcula o Mucus Cycle Score (MCS) a partir de seis dias de descrições de muco cervical até o Dia Pico.',
-    'Acomp. Ciclo':  'Registra e acompanha os adesivos, datas e descrições de muco dos 35 dias do ciclo.'
-  };
-
-  function showTooltip(event, el) {
-    const label = el.querySelector('.icon-label').textContent.trim();
-    const desc  = DESCRIPTIONS[label] || '';
-    if (!desc) return;
-
-    const tip = document.getElementById('tooltip');
-    tip.textContent   = desc;
-    tip.style.display = 'block';
-    positionTooltip(event);
-  }
-
-  function positionTooltip(event) {
-    const tip = document.getElementById('tooltip');
-    const x   = event.clientX + 14;
-    const y   = event.clientY + 14;
-    const tw  = tip.offsetWidth;
-    const th  = tip.offsetHeight;
-    tip.style.left = (x + tw > window.innerWidth  ? window.innerWidth  - tw - 8 : x) + 'px';
-    tip.style.top  = (y + th > window.innerHeight ? y - th - 20 : y) + 'px';
-  }
-
-  function hideTooltip() {
-    document.getElementById('tooltip').style.display = 'none';
-  }
-
-  document.getElementById('desktop').addEventListener('mousemove', e => {
-    if (document.getElementById('tooltip').style.display === 'block') {
-      positionTooltip(e);
-    }
-  });
-
-  /* ── MENU START ── */
-  function toggleStartMenu(event) {
-    event.stopPropagation();
-    document.getElementById('start-menu').classList.toggle('open');
-  }
-
-  function closeStartMenu(event) {
-    document.getElementById('start-menu').classList.remove('open');
-  }
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeStartMenu();
-  });
-</script>
-
-</body>
-</html>
+  // TOOLTIP

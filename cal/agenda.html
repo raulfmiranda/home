@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha Agenda</title>
+  <link rel="stylesheet" href="agenda.css">
+</head>
+
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1>Minha Agenda</h1>
+      <div id="status" class="status">Carregando eventos...</div>
+    </header>
+
+    <main id="calendars-container" class="calendars-container">
+      <!-- Os calendarios (mes atual e mes seguinte) serao inseridos aqui via JS -->
+    </main>
+  </div>
+
+  <div id="event-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="modal-close" class="modal-close" aria-label="Fechar">&times;</button>
+      <h2 id="modal-title"></h2>
+      <p id="modal-date" class="modal-date"></p>
+      <p id="modal-location" class="modal-detail"></p>
+      <p id="modal-description" class="modal-detail"></p>
+    </div>
+  </div>
+
+  <!-- Versao ES5 transpilada: expoe "ICAL" como variavel global,
+       compativel com <script> tradicional (sem type="module") -->
+  <script src="https://unpkg.com/ical.js@2.1.0/dist/ical.es5.min.cjs"></script>
+  <script src="agenda.js"></script>
+</body>
+
+</html>
