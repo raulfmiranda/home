@@ -219,3 +219,118 @@ body {
   margin-bottom: 8px;
   white-space: pre-wrap;
 }
+
+/* ==========================================================
+   FUNCIONALIDADE 1: Botao de Boas-Vindas (header)
+   ========================================================== */
+.welcome-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: #1a73e8;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin: 4px 0 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.welcome-btn:hover {
+  background: #1558b3;
+}
+
+.welcome-btn:active {
+  transform: scale(0.98);
+}
+
+.welcome-btn:disabled {
+  background: #188038;
+  cursor: default;
+}
+
+/* ==========================================================
+   FUNCIONALIDADE 2: Secao de lembrete dentro do modal
+   ========================================================== */
+.modal-reminder-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e8eaed;
+}
+
+.modal-reminder-section.hidden {
+  display: none;
+}
+
+.modal-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  color: #3c4043;
+  margin-bottom: 14px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.modal-checkbox-label input[type="checkbox"] {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: #1a73e8;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.price-hint {
+  display: block;
+  font-size: 12px;
+  color: #5f6368;
+  margin-top: 2px;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: #188038;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.copy-btn:hover {
+  background: #12602c;
+}
+
+.copy-btn:active {
+  transform: scale(0.98);
+}
+
+.copy-btn:disabled {
+  background: #5f6368;
+  cursor: default;
+}
+
+.copy-feedback {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #188038;
+  margin-top: 10px;
+}
+
+.copy-feedback.hidden {
+  display: none;
+}
