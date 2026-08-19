@@ -25,7 +25,7 @@ const WEEKDAYS_FULL = [
 const SUBSCRIBE_FORM_LINK = "https://docs.google.com/forms/d/e/1FAIpQLScCJZckTJpowlCPlCNT74XNwXRSbGeNgZBiES9xEO0RvrItJg/viewform?usp=sharing&ouid=103560756861124673676";
 
 // Regex para identificar eventos de sessao de acompanhamento (SS1..SS9) no titulo.
-const SESSION_PATTERN = /SS[1-9]/i;
+const SESSION_PATTERN = /SS[1-9]|EI/i;
 
 // ==========================================================
 // FUNCIONALIDADE 3: parametros de sugestao de horarios vazios
@@ -440,7 +440,12 @@ function getSessionInstructionText(session) {
 function buildReminderWhatsappText(ev, isNewClient) {
   const session = extractSessionCode(ev.summary);
   const { formattedDate, finalFormattedTime } = formatDateTimePtBR(ev.start);
-  const price = isNewClient ? "230,00" : "220,00";
+  const price =
+    session === "EI"
+      ? "340,00"
+      : isNewClient
+        ? "230,00"
+        : "220,00";
   const instructionText = getSessionInstructionText(session);
 
   let text = `Olá *${extractRecipientName(ev)}*, tudo bem?\n\n`;
@@ -466,7 +471,7 @@ function buildReminderWhatsappText(ev, isNewClient) {
 // Ex.: "(SS3) Maria Patrícia dos Santos Pires de Oliveira" -> "Maria Patrícia"
 function extractRecipientName(ev) {
   const withoutSession = (ev.summary || "")
-    .replace(/[\(\[\{]\s*SS[1-9]\s*[\)\]\}]/gi, " ")
+    .replace(/[\(\[\{]\s*(?:SS[1-9]|EI)\s*[\)\]\}]/gi, " ")
     .replace(SESSION_PATTERN, " ")
     .replace(/[-–—:()\[\]{}]/g, " ")
     .replace(/\s+/g, " ")
@@ -474,7 +479,20 @@ function extractRecipientName(ev) {
 
   if (!withoutSession) return "[NOME]";
 
-  return withoutSession.split(" ").slice(0, 2).join(" ");
+  const names = withoutSession.split(" ");
+
+  const firstName = names[0];
+  const secondName = names[1];
+
+  if (!secondName) {
+    return firstName;
+  }
+
+  const secondNameStartsWithUppercase = /^[A-ZÁÀÃÂÉÊÍÓÔÕÚÇ]/.test(secondName);
+
+  return secondNameStartsWithUppercase
+    ? `${firstName} ${secondName}`
+    : firstName;
 }
 
 async function handleCopyReminderText() {
