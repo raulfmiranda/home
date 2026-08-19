@@ -334,3 +334,16 @@ body {
 .copy-feedback.hidden {
   display: none;
 }
+
+.suggest-btn {
+  background: #9334e6;
+  margin-left: 8px;
+}
+
+.suggest-btn:hover {
+  background: #7a2bc2;
+}
+
+.suggest-btn:disabled {
+  background: #188038;
+}

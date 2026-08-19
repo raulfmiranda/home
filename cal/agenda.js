@@ -564,14 +564,14 @@ function formatSlotSuggestion(slot) {
 function buildSuggestedSlotsWhatsappText(events) {
   const slots = findAvailableSlots(events, SUGGEST_COUNT);
 
-  let text = "Olá! Para agendarmos o seu próximo encontro, você teria alguma preferência de horário (manhã ou tarde) e de dia da semana? 😊\n\n";
+  let text = "Para agendarmos o seu próximo encontro, você teria alguma preferência de horário (manhã ou tarde) e de dia da semana? 😊\n\n";
 
   if (slots.length === 0) {
     text += "No momento não encontrei horários vazios de 2h disponíveis nas segundas, quartas ou sextas (10h, 14h ou 16h) dentro dos próximos dias. Posso verificar outras datas, se preferir.";
     return text;
   }
 
-  text += "Enquanto isso, seguem algumas opções de horários que já estão livres na minha agenda:\n\n";
+  text += "Seguem algumas opções de horários que estão livres na minha agenda:\n\n";
   slots.forEach((slot, index) => {
     text += `${index + 1}️⃣ ${formatSlotSuggestion(slot)}\n`;
   });
