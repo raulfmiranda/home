@@ -27,6 +27,21 @@ const SUBSCRIBE_FORM_LINK = "https://docs.google.com/forms/d/e/1FAIpQLScCJZckTJp
 // Regex para identificar eventos de sessao de acompanhamento (SS1..SS9) no titulo.
 const SESSION_PATTERN = /SS[1-9]/i;
 
+// ==========================================================
+// FUNCIONALIDADE 3: parametros de sugestao de horarios vazios
+// ==========================================================
+// Dias da semana permitidos para sugestao: 1 = segunda, 3 = quarta, 5 = sexta
+// (Date.getDay(): 0=dom, 1=seg, 2=ter, 3=qua, 4=qui, 5=sex, 6=sab)
+const SUGGEST_ALLOWED_WEEKDAYS = [1, 3, 5];
+// Horarios de inicio permitidos para a sugestao (hora cheia, 24h)
+const SUGGEST_ALLOWED_START_HOURS = [10, 14, 16];
+// Duracao minima exigida do slot livre, em horas
+const SUGGEST_SLOT_DURATION_HOURS = 2;
+// Quantidade de sugestoes a incluir no texto
+const SUGGEST_COUNT = 3;
+// Quantos dias para o futuro serao varridos em busca de slots livres
+const SUGGEST_SEARCH_WINDOW_DAYS = 60;
+
 const statusEl = document.getElementById("status");
 const containerEl = document.getElementById("calendars-container");
 const modalEl = document.getElementById("event-modal");
@@ -42,7 +57,14 @@ const modalIsNewClientCheckbox = document.getElementById("modal-is-new-client");
 const modalCopyReminderBtn = document.getElementById("modal-copy-reminder-btn");
 const modalCopyFeedback = document.getElementById("modal-copy-feedback");
 
+// Funcionalidade 3: botao de sugestao de horarios (topo da pagina)
+const suggestSlotsBtn = document.getElementById("suggest-slots-btn");
+
 let currentModalEvent = null;
+
+// Guarda a ultima lista de eventos carregada, para ser usada pelo calculo
+// de horarios livres (Funcionalidade 3) sem precisar refazer o fetch/parse.
+let allLoadedEvents = [];
 
 document.addEventListener("DOMContentLoaded", init);
 modalCloseBtn.addEventListener("click", closeModal);
@@ -55,11 +77,13 @@ document.addEventListener("keydown", (e) => {
 
 welcomeWhatsappBtn.addEventListener("click", handleCopyWelcomeText);
 modalCopyReminderBtn.addEventListener("click", handleCopyReminderText);
+suggestSlotsBtn.addEventListener("click", handleCopySuggestedSlotsText);
 
 async function init() {
   try {
     const icsText = await fetchIcal();
     const { events, skippedCount } = parseIcalEvents(icsText);
+    allLoadedEvents = events;
     renderCalendars(events);
     statusEl.textContent = skippedCount > 0
       ? `${events.length} evento(s) carregado(s). ${skippedCount} evento(s) ignorado(s) por erro de formatação.`
@@ -151,25 +175,25 @@ function parseIcalEvents(icsText) {
 
   events.sort((a, b) => a.start - b.start);
   return { events, skippedCount };
-}
 
-function buildEventObject(event, startICAL, endICAL) {
-  return {
-    uid: event.uid,
-    summary: event.summary || "(Sem titulo)",
-    description: event.description || "",
-    location: event.location || "",
-    isAllDay: startICAL.isDate,
-    start: startICAL.toJSDate(),
-    end: endICAL.toJSDate()
-  };
-}
+  function buildEventObject(event, startICAL, endICAL) {
+    return {
+      uid: event.uid,
+      summary: event.summary || "(Sem titulo)",
+      description: event.description || "",
+      location: event.location || "",
+      isAllDay: startICAL.isDate,
+      start: startICAL.toJSDate(),
+      end: endICAL.toJSDate()
+    };
+  }
 
-function getVisibleRange() {
-  const now = new Date();
-  const rangeStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 2, 0, 23, 59, 59);
-  return { rangeStart, rangeEnd };
+  function getVisibleRange() {
+    const now = new Date();
+    const rangeStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 2, 0, 23, 59, 59);
+    return { rangeStart, rangeEnd };
+  }
 }
 
 // ==========================================================
@@ -190,97 +214,97 @@ function renderCalendars(events) {
     const monthBlock = renderMonth(year, month, events, now);
     containerEl.appendChild(monthBlock);
   });
-}
 
-function renderMonth(year, month, events, today) {
-  const monthBlock = document.createElement("section");
-  monthBlock.className = "month-block";
+  function renderMonth(year, month, events, today) {
+    const monthBlock = document.createElement("section");
+    monthBlock.className = "month-block";
 
-  const title = document.createElement("h2");
-  title.className = "month-title";
-  title.textContent = `${MONTH_LABELS[month]} de ${year}`;
-  monthBlock.appendChild(title);
+    const title = document.createElement("h2");
+    title.className = "month-title";
+    title.textContent = `${MONTH_LABELS[month]} de ${year}`;
+    monthBlock.appendChild(title);
 
-  const weekdaysRow = document.createElement("div");
-  weekdaysRow.className = "weekdays";
-  WEEKDAY_LABELS.forEach((label) => {
-    const span = document.createElement("span");
-    span.textContent = label;
-    weekdaysRow.appendChild(span);
-  });
-  monthBlock.appendChild(weekdaysRow);
-
-  const daysGrid = document.createElement("div");
-  daysGrid.className = "days-grid";
-
-  const firstDayOfMonth = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const startWeekday = firstDayOfMonth.getDay();
-
-  for (let i = 0; i < startWeekday; i++) {
-    const emptyCell = document.createElement("div");
-    emptyCell.className = "day-cell empty";
-    daysGrid.appendChild(emptyCell);
-  }
-
-  const eventsByDay = groupEventsByDay(events, year, month);
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const cell = document.createElement("div");
-    cell.className = "day-cell";
-
-    const isToday =
-      today.getFullYear() === year &&
-      today.getMonth() === month &&
-      today.getDate() === day;
-    if (isToday) cell.classList.add("today");
-
-    const dayNumber = document.createElement("div");
-    dayNumber.className = "day-number";
-    dayNumber.textContent = day;
-    cell.appendChild(dayNumber);
-
-    const dayEvents = eventsByDay[day] || [];
-    const maxVisible = 3;
-    dayEvents.slice(0, maxVisible).forEach((ev) => {
-      cell.appendChild(buildEventPill(ev));
+    const weekdaysRow = document.createElement("div");
+    weekdaysRow.className = "weekdays";
+    WEEKDAY_LABELS.forEach((label) => {
+      const span = document.createElement("span");
+      span.textContent = label;
+      weekdaysRow.appendChild(span);
     });
+    monthBlock.appendChild(weekdaysRow);
 
-    if (dayEvents.length > maxVisible) {
-      const moreBtn = document.createElement("button");
-      moreBtn.className = "more-events";
-      moreBtn.textContent = `+${dayEvents.length - maxVisible} mais`;
-      moreBtn.addEventListener("click", () => openModal(dayEvents[maxVisible]));
-      cell.appendChild(moreBtn);
+    const daysGrid = document.createElement("div");
+    daysGrid.className = "days-grid";
+
+    const firstDayOfMonth = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startWeekday = firstDayOfMonth.getDay();
+
+    for (let i = 0; i < startWeekday; i++) {
+      const emptyCell = document.createElement("div");
+      emptyCell.className = "day-cell empty";
+      daysGrid.appendChild(emptyCell);
     }
 
-    daysGrid.appendChild(cell);
+    const eventsByDay = groupEventsByDay(events, year, month);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const cell = document.createElement("div");
+      cell.className = "day-cell";
+
+      const isToday =
+        today.getFullYear() === year &&
+        today.getMonth() === month &&
+        today.getDate() === day;
+      if (isToday) cell.classList.add("today");
+
+      const dayNumber = document.createElement("div");
+      dayNumber.className = "day-number";
+      dayNumber.textContent = day;
+      cell.appendChild(dayNumber);
+
+      const dayEvents = eventsByDay[day] || [];
+      const maxVisible = 3;
+      dayEvents.slice(0, maxVisible).forEach((ev) => {
+        cell.appendChild(buildEventPill(ev));
+      });
+
+      if (dayEvents.length > maxVisible) {
+        const moreBtn = document.createElement("button");
+        moreBtn.className = "more-events";
+        moreBtn.textContent = `+${dayEvents.length - maxVisible} mais`;
+        moreBtn.addEventListener("click", () => openModal(dayEvents[maxVisible]));
+        cell.appendChild(moreBtn);
+      }
+
+      daysGrid.appendChild(cell);
+    }
+
+    monthBlock.appendChild(daysGrid);
+    return monthBlock;
   }
 
-  monthBlock.appendChild(daysGrid);
-  return monthBlock;
-}
+  function groupEventsByDay(events, year, month) {
+    const map = {};
+    events.forEach((ev) => {
+      if (ev.start.getFullYear() === year && ev.start.getMonth() === month) {
+        const day = ev.start.getDate();
+        if (!map[day]) map[day] = [];
+        map[day].push(ev);
+      }
+    });
+    return map;
+  }
 
-function groupEventsByDay(events, year, month) {
-  const map = {};
-  events.forEach((ev) => {
-    if (ev.start.getFullYear() === year && ev.start.getMonth() === month) {
-      const day = ev.start.getDate();
-      if (!map[day]) map[day] = [];
-      map[day].push(ev);
-    }
-  });
-  return map;
-}
-
-function buildEventPill(ev) {
-  const btn = document.createElement("button");
-  btn.className = "event-pill" + (ev.isAllDay ? " all-day" : "");
-  btn.textContent = ev.isAllDay
-    ? ev.summary
-    : `${formatTime(ev.start)} ${ev.summary}`;
-  btn.addEventListener("click", () => openModal(ev));
-  return btn;
+  function buildEventPill(ev) {
+    const btn = document.createElement("button");
+    btn.className = "event-pill" + (ev.isAllDay ? " all-day" : "");
+    btn.textContent = ev.isAllDay
+      ? ev.summary
+      : `${formatTime(ev.start)} ${ev.summary}`;
+    btn.addEventListener("click", () => openModal(ev));
+    return btn;
+  }
 }
 
 // ==========================================================
@@ -404,7 +428,7 @@ function formatDateTimePtBR(dateObj) {
 // Instrucoes especificas por sessao, identicas as do Code.gs (apenas SS1 e SS2 tem texto extra).
 function getSessionInstructionText(session) {
   if (session === "SS1") {
-    return "- *Preencher o formulário antes do encontro*:\n  " + SUBSCRIBE_FORM_LINK + "\n" +
+    return "- *Preencher o formulário antes do encontro*:\n " + SUBSCRIBE_FORM_LINK + "\n" +
       "- Preencher o *FORMULÁRIO DE INSCRIÇÃO* entregue no encontro anterior e levá-lo junto com o Gráfico e Adesivos.\n";
   }
   if (session === "SS2") {
@@ -429,7 +453,7 @@ function buildReminderWhatsappText(ev, isNewClient) {
     text += instructionText + "\n";
   }
   text += `- *Realizar o pagamento de R$ ${price} antes do encontro via PIX*\n`;
-  text += "  🔑 Chave PIX: *crmsraul@gmail.com*\n\n";
+  text += " 🔑 Chave PIX: *crmsraul@gmail.com*\n\n";
   text += "Agradeço desde já a sua atenção e empenho no acompanhamento.\nSerá um prazer encontrá-la em breve!\n\n";
   text += "Atenciosamente,\nRaul F. Miranda, FCPI";
 
@@ -460,6 +484,106 @@ async function handleCopyReminderText() {
   await copyTextToClipboard(text);
   flashButtonFeedback(modalCopyReminderBtn, "✅ Copiado!");
   showCopyFeedback();
+}
+
+// ==========================================================
+// FUNCIONALIDADE 3: SUGESTAO DE HORARIOS VAZIOS PARA WHATSAPP
+//
+// Regras de negocio:
+// - So considera dias de segunda (1), quarta (3) ou sexta-feira (5).
+// - So considera horarios de INICIO possiveis: 10h, 14h ou 16h.
+// - O slot verificado tem sempre 2 horas de duracao (inicio -> inicio+2h).
+// - O slot [inicio, inicio+2h) precisa estar livre, ou seja, nao pode
+//   sobrepor NENHUM evento existente na agenda.
+// - So sugere datas a partir de AMANHA (nunca no dia atual).
+// - Gera as 3 primeiras sugestoes encontradas, na ordem cronologica.
+// ==========================================================
+
+// Verifica se o intervalo [slotStart, slotEnd) tem alguma sobreposicao com
+// algum evento existente. Eventos de dia inteiro (isAllDay) tambem bloqueiam
+// o dia inteiro, para evitar sugerir horarios em dias com compromissos ja
+// marcados como "dia todo".
+function isSlotFree(slotStart, slotEnd, events) {
+  return !events.some((ev) => {
+    if (ev.isAllDay) {
+      // Bloqueia o dia inteiro do evento all-day se a data coincidir com o slot.
+      return (
+        ev.start.getFullYear() === slotStart.getFullYear() &&
+        ev.start.getMonth() === slotStart.getMonth() &&
+        ev.start.getDate() === slotStart.getDate()
+      );
+    }
+    // Sobreposicao classica de intervalos: [a, b) x [c, d)
+    return slotStart < ev.end && slotEnd > ev.start;
+  });
+}
+
+// Percorre os proximos N dias (a partir de amanha) e retorna os slots livres
+// que respeitam todas as regras (dia da semana permitido, horario de inicio
+// permitido, duracao de 2h totalmente livre).
+function findAvailableSlots(events, maxResults) {
+  const results = [];
+  const now = new Date();
+
+  // Comeca a busca a partir de amanha (dia atual nunca e sugerido).
+  const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  cursor.setDate(cursor.getDate() + 1);
+
+  for (let dayOffset = 0; dayOffset < SUGGEST_SEARCH_WINDOW_DAYS && results.length < maxResults; dayOffset++) {
+    const day = new Date(cursor);
+    day.setDate(cursor.getDate() + dayOffset);
+
+    if (!SUGGEST_ALLOWED_WEEKDAYS.includes(day.getDay())) continue;
+
+    for (const startHour of SUGGEST_ALLOWED_START_HOURS) {
+      if (results.length >= maxResults) break;
+
+      const slotStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), startHour, 0, 0, 0);
+      const slotEnd = new Date(slotStart);
+      slotEnd.setHours(slotEnd.getHours() + SUGGEST_SLOT_DURATION_HOURS);
+
+      if (isSlotFree(slotStart, slotEnd, events)) {
+        results.push({ start: slotStart, end: slotEnd });
+      }
+    }
+  }
+
+  return results;
+}
+
+// Formata uma sugestao de horario no padrao "segunda-feira, 24 de agosto, das 10h às 12h".
+function formatSlotSuggestion(slot) {
+  const weekday = WEEKDAYS_FULL[slot.start.getDay()];
+  const day = slot.start.getDate();
+  const month = MONTHS_FULL[slot.start.getMonth()];
+  const startHour = slot.start.getHours();
+  const endHour = slot.end.getHours();
+  return `*${weekday}*, ${day} de ${month}, das *${startHour}h* às *${endHour}h*`;
+}
+
+function buildSuggestedSlotsWhatsappText(events) {
+  const slots = findAvailableSlots(events, SUGGEST_COUNT);
+
+  let text = "Olá! Para agendarmos o seu próximo encontro, você teria alguma preferência de horário (manhã ou tarde) e de dia da semana? 😊\n\n";
+
+  if (slots.length === 0) {
+    text += "No momento não encontrei horários vazios de 2h disponíveis nas segundas, quartas ou sextas (10h, 14h ou 16h) dentro dos próximos dias. Posso verificar outras datas, se preferir.";
+    return text;
+  }
+
+  text += "Enquanto isso, seguem algumas opções de horários que já estão livres na minha agenda:\n\n";
+  slots.forEach((slot, index) => {
+    text += `${index + 1}️⃣ ${formatSlotSuggestion(slot)}\n`;
+  });
+  text += "\nFico no aguardo do seu retorno!";
+
+  return text;
+}
+
+async function handleCopySuggestedSlotsText() {
+  const text = buildSuggestedSlotsWhatsappText(allLoadedEvents);
+  await copyTextToClipboard(text);
+  flashButtonFeedback(suggestSlotsBtn, "✅ Copiado!");
 }
 
 // ==========================================================
