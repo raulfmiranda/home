@@ -428,9 +428,8 @@ function buildReminderWhatsappText(ev, isNewClient) {
   if (instructionText) {
     text += instructionText + "\n";
   }
-  text += `- *Realizar o pagamento antes do encontro (R$ ${price}) via PIX*\n`;
+  text += `- *Realizar o pagamento de R$ ${price} antes do encontro via PIX*\n`;
   text += "  🔑 Chave PIX: *crmsraul@gmail.com*\n\n";
-  text += `O valor da sessão de acompanhamento é de *R$ 230*.\n\n`;
   text += "Agradeço desde já a sua atenção e empenho no acompanhamento.\nSerá um prazer encontrá-la em breve!\n\n";
   text += "Atenciosamente,\nRaul F. Miranda, FCPI";
 
