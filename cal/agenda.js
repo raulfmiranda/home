@@ -536,25 +536,57 @@ function isSlotFree(slotStart, slotEnd, events) {
   });
 }
 
-// Percorre os proximos N dias (a partir de amanha) e retorna os slots livres
-// que respeitam todas as regras (dia da semana permitido, horario de inicio
-// permitido, duracao de 2h totalmente livre).
+// ==========================================================
+// FUNCIONALIDADE 3: SUGESTAO DE HORARIOS VAZIOS PARA WHATSAPP
+// (VERSAO ATUALIZADA - com diversidade entre as sugestoes)
+//
+// Substitua a funcao findAvailableSlots() original em agenda-4.js por esta.
+// Nenhuma outra funcao precisa mudar (isSlotFree, formatSlotSuggestion,
+// buildSuggestedSlotsWhatsappText, etc. permanecem exatamente iguais).
+//
+// Regras de negocio (mantidas):
+// - So considera dias de segunda (1), quarta (3) ou sexta-feira (5).
+// - So considera horarios de INICIO possiveis: 10h, 14h ou 16h.
+// - O slot verificado tem sempre 2 horas de duracao (inicio -> inicio+2h).
+// - O slot [inicio, inicio+2h) precisa estar livre, ou seja, nao pode
+//   sobrepor NENHUM evento existente na agenda.
+// - So sugere datas a partir de AMANHA (nunca no dia atual).
+//
+// Regra de negocio (NOVA):
+// - As sugestoes retornadas nunca repetem o dia da semana entre si.
+// - As sugestoes retornadas nunca repetem o horario de inicio entre si.
+//   Ex.: se a 1a sugestao cair numa segunda-feira as 10h, a 2a sugestao
+//   nao pode ser segunda-feira (nenhum horario) nem as 10h (nenhum dia).
+// ==========================================================
+
 function findAvailableSlots(events, maxResults) {
   const results = [];
+  const usedWeekdays = new Set();
+  const usedStartHours = new Set();
   const now = new Date();
 
   // Comeca a busca a partir de amanha (dia atual nunca e sugerido).
   const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   cursor.setDate(cursor.getDate() + 1);
 
+  // --- PASSO 1: busca priorizando diversidade total (dia e horario distintos) ---
   for (let dayOffset = 0; dayOffset < SUGGEST_SEARCH_WINDOW_DAYS && results.length < maxResults; dayOffset++) {
     const day = new Date(cursor);
     day.setDate(cursor.getDate() + dayOffset);
 
-    if (!SUGGEST_ALLOWED_WEEKDAYS.includes(day.getDay())) continue;
+    const weekday = day.getDay();
+    if (!SUGGEST_ALLOWED_WEEKDAYS.includes(weekday)) continue;
+
+    // Ja existe uma sugestao nesse mesmo dia da semana: pula o dia inteiro
+    // para garantir que os dias sugeridos sejam sempre distintos.
+    if (usedWeekdays.has(weekday)) continue;
 
     for (const startHour of SUGGEST_ALLOWED_START_HOURS) {
       if (results.length >= maxResults) break;
+
+      // Ja existe uma sugestao nesse mesmo horario de inicio: pula o horario
+      // para garantir que os horarios sugeridos sejam sempre distintos.
+      if (usedStartHours.has(startHour)) continue;
 
       const slotStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), startHour, 0, 0, 0);
       const slotEnd = new Date(slotStart);
@@ -562,8 +594,46 @@ function findAvailableSlots(events, maxResults) {
 
       if (isSlotFree(slotStart, slotEnd, events)) {
         results.push({ start: slotStart, end: slotEnd });
+        usedWeekdays.add(weekday);
+        usedStartHours.add(startHour);
+        // So um slot por dia (o dia ja foi "consumido" para novas sugestoes).
+        break;
       }
     }
+  }
+
+  // --- PASSO 2 (fallback): se a agenda estiver muito congestionada e nao for
+  // possivel juntar maxResults sugestoes 100% distintas dentro da janela de
+  // busca, completa com os proximos slots livres disponiveis, mesmo que
+  // repitam dia da semana ou horario, para nunca deixar de sugerir horarios.
+  if (results.length < maxResults) {
+    const usedKeys = new Set(results.map((s) => s.start.getTime()));
+
+    for (let dayOffset = 0; dayOffset < SUGGEST_SEARCH_WINDOW_DAYS && results.length < maxResults; dayOffset++) {
+      const day = new Date(cursor);
+      day.setDate(cursor.getDate() + dayOffset);
+
+      if (!SUGGEST_ALLOWED_WEEKDAYS.includes(day.getDay())) continue;
+
+      for (const startHour of SUGGEST_ALLOWED_START_HOURS) {
+        if (results.length >= maxResults) break;
+
+        const slotStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), startHour, 0, 0, 0);
+        if (usedKeys.has(slotStart.getTime())) continue;
+
+        const slotEnd = new Date(slotStart);
+        slotEnd.setHours(slotEnd.getHours() + SUGGEST_SLOT_DURATION_HOURS);
+
+        if (isSlotFree(slotStart, slotEnd, events)) {
+          results.push({ start: slotStart, end: slotEnd });
+          usedKeys.add(slotStart.getTime());
+        }
+      }
+    }
+
+    // Garante ordem cronologica final, ja que o passo 2 pode inserir slots
+    // "fora de ordem" em relacao aos do passo 1.
+    results.sort((a, b) => a.start - b.start);
   }
 
   return results;
