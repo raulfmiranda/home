@@ -25,7 +25,7 @@ const WEEKDAYS_FULL = [
 const SUBSCRIBE_FORM_LINK = "https://docs.google.com/forms/d/e/1FAIpQLScCJZckTJpowlCPlCNT74XNwXRSbGeNgZBiES9xEO0RvrItJg/viewform?usp=sharing&ouid=103560756861124673676";
 
 // Regex para identificar eventos de sessao de acompanhamento (SS1..SS9) no titulo.
-const SESSION_PATTERN = /SS[1-9]|EI/i;
+const SESSION_PATTERN = /(?<![\p{L}\p{N}])(?:SS[1-9]|EI)(?![\p{L}\p{N}])/iu;
 
 // ==========================================================
 // FUNCIONALIDADE 3: parametros de sugestao de horarios vazios
@@ -380,7 +380,7 @@ function buildWelcomeWhatsappText() {
     "Os pagamentos podem ser feitos por *PIX ou em dinheiro*, antes de cada encontro, para garantir a inscrição.\n\n" +
     "Os atendimentos são *virtuais (pelo Google Meet)*.\n\n" +
     "Fico à disposição para agendarmos o seu *Encontro Introdutório*!\n\n" +
-    "Raul F. Miranda, FCPI"
+    "Raul F. Miranda, FCP"
   );
 }
 
@@ -460,7 +460,7 @@ function buildReminderWhatsappText(ev, isNewClient) {
   text += `- *Realizar o pagamento de R$ ${price} antes do encontro via PIX*\n`;
   text += " 🔑 Chave PIX: *crmsraul@gmail.com*\n\n";
   text += "Agradeço desde já a sua atenção e empenho no acompanhamento.\nSerá um prazer encontrá-la em breve!\n\n";
-  text += "Atenciosamente,\nRaul F. Miranda, FCPI";
+  text += "Atenciosamente,\nRaul F. Miranda, FCP";
 
   return text;
 }
@@ -468,31 +468,24 @@ function buildReminderWhatsappText(ev, isNewClient) {
 // O iCal nao traz o nome do paciente separadamente; tenta extrair do titulo
 // removendo o codigo da sessao (mesmo quando entre parenteses/colchetes/chaves),
 // e mantem apenas os DOIS PRIMEIROS nomes do que restar.
-// Ex.: "(SS3) Maria Patrícia dos Santos Pires de Oliveira" -> "Maria Patrícia"
 function extractRecipientName(ev) {
+  const sessionRegexGlobal = new RegExp(SESSION_PATTERN.source, "giu");
+
   const withoutSession = (ev.summary || "")
-    .replace(/[\(\[\{]\s*(?:SS[1-9]|EI)\s*[\)\]\}]/gi, " ")
-    .replace(SESSION_PATTERN, " ")
+    .replace(/[\(\[\{]\s*(?:SS[1-9]|EI)\s*[\)\]\}]/giu, " ")
+    .replace(sessionRegexGlobal, " ")
     .replace(/[-–—:()\[\]{}]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
   if (!withoutSession) return "[NOME]";
 
-  const names = withoutSession.split(" ");
-
-  const firstName = names[0];
-  const secondName = names[1];
-
-  if (!secondName) {
-    return firstName;
-  }
-
-  const secondNameStartsWithUppercase = /^[A-ZÁÀÃÂÉÊÍÓÔÕÚÇ]/.test(secondName);
-
-  return secondNameStartsWithUppercase
-    ? `${firstName} ${secondName}`
-    : firstName;
+  const particles = new Set(["de", "da", "do", "dos", "das", "e"]);
+  return withoutSession
+    .split(" ")
+    .filter((p) => !particles.has(p.toLowerCase()))
+    .slice(0, 2)
+    .join(" ");
 }
 
 async function handleCopyReminderText() {
