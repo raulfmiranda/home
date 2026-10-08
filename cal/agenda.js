@@ -85,6 +85,15 @@ async function init() {
     const { events, skippedCount } = parseIcalEvents(icsText);
     allLoadedEvents = events;
     renderCalendars(events);
+
+    // Funcionalidade 4: faturamento (isolado em try/catch proprio para que
+    // qualquer erro aqui nunca impeca o calendario de funcionar)
+    try {
+      renderRevenueSection(icsText);
+    } catch (revErr) {
+      console.error("Erro ao calcular faturamento:", revErr);
+    }
+
     statusEl.textContent = skippedCount > 0
       ? `${events.length} evento(s) carregado(s). ${skippedCount} evento(s) ignorado(s) por erro de formatação.`
       : `${events.length} evento(s) carregado(s).`;
@@ -533,10 +542,6 @@ function isSlotFree(slotStart, slotEnd, events) {
 // FUNCIONALIDADE 3: SUGESTAO DE HORARIOS VAZIOS PARA WHATSAPP
 // (VERSAO ATUALIZADA - com diversidade entre as sugestoes)
 //
-// Substitua a funcao findAvailableSlots() original em agenda-4.js por esta.
-// Nenhuma outra funcao precisa mudar (isSlotFree, formatSlotSuggestion,
-// buildSuggestedSlotsWhatsappText, etc. permanecem exatamente iguais).
-//
 // Regras de negocio (mantidas):
 // - So considera dias de segunda (1), quarta (3) ou sexta-feira (5).
 // - So considera horarios de INICIO possiveis: 10h, 14h ou 16h.
@@ -666,6 +671,207 @@ async function handleCopySuggestedSlotsText() {
   await copyTextToClipboard(text);
   flashButtonFeedback(suggestSlotsBtn, "✅ Copiado!");
 }
+
+// ==========================================================
+// FUNCIONALIDADE 4: FATURAMENTO BRUTO MENSAL / ANUAL
+//
+// Regras de negocio:
+// - Titulo iniciado por "(EI)"            => R$ 340,00 no mes do evento.
+// - Titulo iniciado por "(SS1)".."(SS8)"  => R$ 230,00 no mes do evento.
+// - Periodo: ano atual + 1 ano anterior (ex.: 2026 e 2025).
+// - "Recebido ate hoje": eventos com inicio <= agora.
+// - "A receber": eventos futuros ainda presentes na agenda.
+// - "Previsao fim do mes": recebido + a receber.
+// - Tabela oculta por padrao; botao de toggle para mostrar/ocultar.
+// ==========================================================
+const REVENUE_RULES = [
+  { pattern: /^\s*\(\s*EI\s*\)/i, value: 340 },
+  { pattern: /^\s*\(\s*SS[1-8]\s*\)/i, value: 230 }
+];
+
+const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+function getEventValue(summary) {
+  const rule = REVENUE_RULES.find((r) => r.pattern.test(summary || ""));
+  return rule ? rule.value : 0;
+}
+
+// Parse dedicado ao faturamento: independe da janela de 2 meses do calendario.
+function parseEventsForRevenue(icsText, rangeStart, rangeEnd) {
+  const comp = new ICAL.Component(ICAL.parse(icsText));
+  const vevents = comp.getAllSubcomponents("vevent");
+  const startI = ICAL.Time.fromJSDate(rangeStart, false);
+  const endI = ICAL.Time.fromJSDate(rangeEnd, false);
+  const out = [];
+
+  // Excecoes de recorrencia (RECURRENCE-ID) substituem a ocorrencia original
+  const overridden = new Set();
+  vevents.forEach((v) => {
+    try {
+      const rid = v.getFirstPropertyValue("recurrence-id");
+      if (rid) overridden.add(v.getFirstPropertyValue("uid") + "|" + rid.toJSDate().getTime());
+    } catch (e) {
+      // ignora excecao malformada
+    }
+  });
+
+  vevents.forEach((v) => {
+    try {
+      const status = (v.getFirstPropertyValue("status") || "").toString().toUpperCase();
+      if (status === "CANCELLED") return;
+
+      const event = new ICAL.Event(v);
+      const isException = !!v.getFirstPropertyValue("recurrence-id");
+
+      if (event.isRecurring() && !isException) {
+        const expand = new ICAL.RecurExpansion({
+          component: v,
+          dtstart: v.getFirstPropertyValue("dtstart")
+        });
+        let next;
+        let guard = 0;
+        while ((next = expand.next()) && guard < 10000) {
+          guard++;
+          if (next.compare(endI) > 0) break;
+          if (next.compare(startI) < 0) continue;
+          const d = next.toJSDate();
+          if (overridden.has(event.uid + "|" + d.getTime())) continue;
+          out.push({ summary: event.summary || "", start: d });
+        }
+      } else {
+        const s = event.startDate;
+        if (s.compare(startI) >= 0 && s.compare(endI) <= 0) {
+          out.push({ summary: event.summary || "", start: s.toJSDate() });
+        }
+      }
+    } catch (err) {
+      console.warn("Evento ignorado no calculo de faturamento:", err);
+    }
+  });
+
+  return out;
+}
+
+function computeRevenue(icsText, now) {
+  const year = now.getFullYear();
+  const events = parseEventsForRevenue(
+    icsText,
+    new Date(year - 1, 0, 1),
+    new Date(year, 11, 31, 23, 59, 59)
+  );
+
+  const data = {};
+  [year - 1, year].forEach((y) => {
+    data[y] = Array.from({ length: 12 }, () => ({ received: 0, upcoming: 0, count: 0 }));
+  });
+
+  events.forEach((ev) => {
+    const value = getEventValue(ev.summary);
+    if (!value) return;
+    const yearData = data[ev.start.getFullYear()];
+    if (!yearData) return;
+    const cell = yearData[ev.start.getMonth()];
+    cell.count++;
+    if (ev.start <= now) {
+      cell.received += value;
+    } else {
+      cell.upcoming += value;
+    }
+  });
+
+  return data;
+}
+
+function renderRevenueSection(icsText) {
+  const now = new Date();
+  const data = computeRevenue(icsText, now);
+
+  const previous = document.getElementById("revenue-section");
+  if (previous) previous.remove();
+
+  const section = document.createElement("section");
+  section.id = "revenue-section";
+  section.className = "revenue-section";
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.type = "button";
+  toggleBtn.className = "revenue-toggle";
+  toggleBtn.setAttribute("aria-expanded", "false");
+  toggleBtn.textContent = "💰 Mostrar faturamento";
+
+  // Oculta por padrao
+  const wrapper = document.createElement("div");
+  wrapper.className = "revenue-wrapper hidden";
+
+  const table = document.createElement("table");
+  table.className = "revenue-table";
+  table.innerHTML =
+    "<thead><tr>" +
+    "<th>Mês</th><th>Eventos</th><th>Recebido até hoje</th>" +
+    "<th>A receber</th><th>Previsão fim do mês</th>" +
+    "</tr></thead>";
+
+  const tbody = document.createElement("tbody");
+
+  Object.keys(data)
+    .map(Number)
+    .sort((a, b) => b - a)
+    .forEach((year) => {
+      const totals = { received: 0, upcoming: 0, count: 0 };
+
+      data[year].forEach((m, idx) => {
+        totals.received += m.received;
+        totals.upcoming += m.upcoming;
+        totals.count += m.count;
+
+        const tr = document.createElement("tr");
+        if (year === now.getFullYear() && idx === now.getMonth()) {
+          tr.classList.add("current");
+        }
+        tr.innerHTML =
+          `<td>${MONTHS_FULL[idx]} ${year}</td>` +
+          `<td>${m.count}</td>` +
+          `<td>${brl.format(m.received)}</td>` +
+          `<td>${brl.format(m.upcoming)}</td>` +
+          `<td>${brl.format(m.received + m.upcoming)}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      const totalTr = document.createElement("tr");
+      totalTr.className = "revenue-year-total";
+      totalTr.innerHTML =
+        `<td>Total ${year}</td>` +
+        `<td>${totals.count}</td>` +
+        `<td>${brl.format(totals.received)}</td>` +
+        `<td>${brl.format(totals.upcoming)}</td>` +
+        `<td>${brl.format(totals.received + totals.upcoming)}</td>`;
+      tbody.appendChild(totalTr);
+    });
+
+  table.appendChild(tbody);
+  wrapper.appendChild(table);
+
+  const note = document.createElement("p");
+  note.className = "revenue-note";
+  note.textContent =
+    "(EI) = R$ 340,00 · (SS1) a (SS8) = R$ 230,00. " +
+    "\"Recebido\" = eventos até agora; \"A receber\" = eventos futuros ainda na agenda; " +
+    "\"Previsão\" = soma dos dois.";
+  wrapper.appendChild(note);
+
+  toggleBtn.addEventListener("click", () => {
+    const isHidden = wrapper.classList.toggle("hidden");
+    toggleBtn.setAttribute("aria-expanded", String(!isHidden));
+    toggleBtn.textContent = isHidden ? "💰 Mostrar faturamento" : "🙈 Ocultar faturamento";
+  });
+
+  section.appendChild(toggleBtn);
+  section.appendChild(wrapper);
+
+  // Logo abaixo do calendario de dois meses
+  containerEl.insertAdjacentElement("afterend", section);
+}
+
 
 // ==========================================================
 // UTILITARIOS DE CLIPBOARD E FEEDBACK VISUAL
