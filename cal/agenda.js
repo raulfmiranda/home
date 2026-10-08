@@ -1,7 +1,6 @@
 // ==========================================================
 // CONFIGURACAO
 // ==========================================================
-// Cole aqui a URL /exec gerada pelo seu Google Apps Script (proxy do iCal).
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyA1WRqg2FFlSSDaFgVVp5zJPlbojTj8E0Hra8PAnZWAYMZEjCHcn_-FARTXqLvYk21/exec";
 
 const WEEKDAY_LABELS = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"];
@@ -9,9 +8,6 @@ const MONTH_LABELS = [
   "janeiro", "fevereiro", "marco", "abril", "maio", "junho",
   "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
 ];
-
-// Nomes dos meses usados na formatacao de texto do lembrete (com acentuacao,
-// igual ao Code.gs original) - mantidos separados dos rotulos do calendario.
 const MONTHS_FULL = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
   "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
@@ -20,26 +16,14 @@ const WEEKDAYS_FULL = [
   "domingo", "segunda-feira", "terça-feira", "quarta-feira",
   "quinta-feira", "sexta-feira", "sábado"
 ];
-
-// Link do formulario de inscricao citado na instrucao da sessao SS1.
 const SUBSCRIBE_FORM_LINK = "https://docs.google.com/forms/d/e/1FAIpQLScCJZckTJpowlCPlCNT74XNwXRSbGeNgZBiES9xEO0RvrItJg/viewform?usp=sharing&ouid=103560756861124673676";
-
-// Regex para identificar eventos de sessao de acompanhamento (SS1..SS9) no titulo.
 const SESSION_PATTERN = /(?<![\p{L}\p{N}])(?:SS[1-9]|EI)(?![\p{L}\p{N}])/iu;
 
-// ==========================================================
-// FUNCIONALIDADE 3: parametros de sugestao de horarios vazios
-// ==========================================================
-// Dias da semana permitidos para sugestao: 1 = segunda, 3 = quarta, 5 = sexta
-// (Date.getDay(): 0=dom, 1=seg, 2=ter, 3=qua, 4=qui, 5=sex, 6=sab)
+// Parametros de sugestao de horarios (Funcionalidade 3)
 const SUGGEST_ALLOWED_WEEKDAYS = [1, 3, 5];
-// Horarios de inicio permitidos para a sugestao (hora cheia, 24h)
 const SUGGEST_ALLOWED_START_HOURS = [10, 14, 16];
-// Duracao minima exigida do slot livre, em horas
 const SUGGEST_SLOT_DURATION_HOURS = 2;
-// Quantidade de sugestoes a incluir no texto
 const SUGGEST_COUNT = 3;
-// Quantos dias para o futuro serao varridos em busca de slots livres
 const SUGGEST_SEARCH_WINDOW_DAYS = 60;
 
 const statusEl = document.getElementById("status");
@@ -50,20 +34,14 @@ const modalDateEl = document.getElementById("modal-date");
 const modalLocationEl = document.getElementById("modal-location");
 const modalDescriptionEl = document.getElementById("modal-description");
 const modalCloseBtn = document.getElementById("modal-close");
-
 const welcomeWhatsappBtn = document.getElementById("welcome-whatsapp-btn");
 const modalReminderSection = document.getElementById("modal-reminder-section");
 const modalIsNewClientCheckbox = document.getElementById("modal-is-new-client");
 const modalCopyReminderBtn = document.getElementById("modal-copy-reminder-btn");
 const modalCopyFeedback = document.getElementById("modal-copy-feedback");
-
-// Funcionalidade 3: botao de sugestao de horarios (topo da pagina)
 const suggestSlotsBtn = document.getElementById("suggest-slots-btn");
 
 let currentModalEvent = null;
-
-// Guarda a ultima lista de eventos carregada, para ser usada pelo calculo
-// de horarios livres (Funcionalidade 3) sem precisar refazer o fetch/parse.
 let allLoadedEvents = [];
 
 document.addEventListener("DOMContentLoaded", init);
@@ -74,7 +52,6 @@ modalEl.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeModal();
 });
-
 welcomeWhatsappBtn.addEventListener("click", handleCopyWelcomeText);
 modalCopyReminderBtn.addEventListener("click", handleCopyReminderText);
 suggestSlotsBtn.addEventListener("click", handleCopySuggestedSlotsText);
@@ -85,15 +62,12 @@ async function init() {
     const { events, skippedCount } = parseIcalEvents(icsText);
     allLoadedEvents = events;
     renderCalendars(events);
-
-    // Funcionalidade 4: faturamento (isolado em try/catch proprio para que
-    // qualquer erro aqui nunca impeca o calendario de funcionar)
+    // Funcionalidade 4: faturamento isolado em try/catch proprio
     try {
       renderRevenueSection(icsText);
     } catch (revErr) {
       console.error("Erro ao calcular faturamento:", revErr);
     }
-
     statusEl.textContent = skippedCount > 0
       ? `${events.length} evento(s) carregado(s). ${skippedCount} evento(s) ignorado(s) por erro de formatação.`
       : `${events.length} evento(s) carregado(s).`;
@@ -105,68 +79,41 @@ async function init() {
   }
 }
 
-// ==========================================================
-// 1. BUSCA O ARQUIVO .ICS VIA O PROXY DO APPS SCRIPT
-// ==========================================================
 async function fetchIcal() {
   const response = await fetch(APPS_SCRIPT_URL);
-  if (!response.ok) {
-    throw new Error(`Falha na requisicao (status ${response.status})`);
-  }
+  if (!response.ok) throw new Error(`Falha na requisicao (status ${response.status})`);
   return await response.text();
 }
 
-// ==========================================================
-// 2. PARSING DO ICAL, EXPANDINDO EVENTOS RECORRENTES (RRULE)
-// dentro da janela do mes atual + mes seguinte
-//
-// NOTA DE ROBUSTEZ: alguns eventos gerados pelo Google Calendar (em geral
-// convites com DESCRIPTION/LOCATION contendo caracteres especiais, aspas ou
-// ";"/"=" dentro do valor) expõem bugs de parsing de parametros na lib
-// ical.js (ver kewisch/ical.js#612 e #702). Para evitar que um unico evento
-// malformado quebre o carregamento de toda a agenda, cada VEVENT e processado
-// dentro de um try/catch individual: se falhar, o evento e apenas ignorado
-// (e reportado no console), e o restante continua sendo exibido normalmente.
-//
-// IMPORTANTE: esta funcao retorna SEMPRE um objeto { events, skippedCount }.
-// Todo codigo que a chama deve desestruturar o retorno (nao usar mais
-// "const events = parseIcalEvents(...)" diretamente).
-// ==========================================================
+// Parsing do iCal com expansao de recorrencias (RRULE) na janela de 2 meses
 function parseIcalEvents(icsText) {
   const jcalData = ICAL.parse(icsText);
   const comp = new ICAL.Component(jcalData);
   const vevents = comp.getAllSubcomponents("vevent");
-
   const { rangeStart, rangeEnd } = getVisibleRange();
   const rangeStartICAL = ICAL.Time.fromJSDate(rangeStart, false);
   const rangeEndICAL = ICAL.Time.fromJSDate(rangeEnd, false);
-
   const events = [];
   let skippedCount = 0;
 
   vevents.forEach((veventComp) => {
     try {
       const event = new ICAL.Event(veventComp);
-
       if (event.isRecurring()) {
         const duration = event.duration;
         const expand = new ICAL.RecurExpansion({
           component: veventComp,
           dtstart: veventComp.getFirstPropertyValue("dtstart")
         });
-
         let next;
         let safetyCounter = 0;
-        // limite de seguranca para nao criar loop infinito com regras sem UNTIL/COUNT
         while ((next = expand.next()) && safetyCounter < 2000) {
           safetyCounter++;
           if (next.compare(rangeEndICAL) > 0) break;
           if (next.compare(rangeStartICAL) < 0) continue;
-
           const occStart = next.clone();
           const occEnd = occStart.clone();
           occEnd.addDuration(duration);
-
           events.push(buildEventObject(event, occStart, occEnd));
         }
       } else {
@@ -205,15 +152,10 @@ function parseIcalEvents(icsText) {
   }
 }
 
-// ==========================================================
-// 3. RENDERIZACAO DO CALENDARIO (mes atual + mes seguinte)
-// Recebe SEMPRE o array de eventos ja resolvido (nunca o objeto
-// { events, skippedCount } retornado por parseIcalEvents).
-// ==========================================================
+// Renderiza o calendario de 2 meses (atual + proximo)
 function renderCalendars(events) {
   containerEl.innerHTML = "";
   const now = new Date();
-
   const monthsToShow = [
     { year: now.getFullYear(), month: now.getMonth() },
     { year: now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(), month: (now.getMonth() + 1) % 12 }
@@ -227,12 +169,10 @@ function renderCalendars(events) {
   function renderMonth(year, month, events, today) {
     const monthBlock = document.createElement("section");
     monthBlock.className = "month-block";
-
     const title = document.createElement("h2");
     title.className = "month-title";
     title.textContent = `${MONTH_LABELS[month]} de ${year}`;
     monthBlock.appendChild(title);
-
     const weekdaysRow = document.createElement("div");
     weekdaysRow.className = "weekdays";
     WEEKDAY_LABELS.forEach((label) => {
@@ -241,43 +181,31 @@ function renderCalendars(events) {
       weekdaysRow.appendChild(span);
     });
     monthBlock.appendChild(weekdaysRow);
-
     const daysGrid = document.createElement("div");
     daysGrid.className = "days-grid";
-
     const firstDayOfMonth = new Date(year, month, 1);
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const startWeekday = firstDayOfMonth.getDay();
-
     for (let i = 0; i < startWeekday; i++) {
       const emptyCell = document.createElement("div");
       emptyCell.className = "day-cell empty";
       daysGrid.appendChild(emptyCell);
     }
-
     const eventsByDay = groupEventsByDay(events, year, month);
-
     for (let day = 1; day <= daysInMonth; day++) {
       const cell = document.createElement("div");
       cell.className = "day-cell";
-
-      const isToday =
-        today.getFullYear() === year &&
-        today.getMonth() === month &&
-        today.getDate() === day;
+      const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
       if (isToday) cell.classList.add("today");
-
       const dayNumber = document.createElement("div");
       dayNumber.className = "day-number";
       dayNumber.textContent = day;
       cell.appendChild(dayNumber);
-
       const dayEvents = eventsByDay[day] || [];
       const maxVisible = 3;
       dayEvents.slice(0, maxVisible).forEach((ev) => {
         cell.appendChild(buildEventPill(ev));
       });
-
       if (dayEvents.length > maxVisible) {
         const moreBtn = document.createElement("button");
         moreBtn.className = "more-events";
@@ -285,10 +213,8 @@ function renderCalendars(events) {
         moreBtn.addEventListener("click", () => openModal(dayEvents[maxVisible]));
         cell.appendChild(moreBtn);
       }
-
       daysGrid.appendChild(cell);
     }
-
     monthBlock.appendChild(daysGrid);
     return monthBlock;
   }
@@ -308,26 +234,18 @@ function renderCalendars(events) {
   function buildEventPill(ev) {
     const btn = document.createElement("button");
     btn.className = "event-pill" + (ev.isAllDay ? " all-day" : "");
-    btn.textContent = ev.isAllDay
-      ? ev.summary
-      : `${formatTime(ev.start)} ${ev.summary}`;
+    btn.textContent = ev.isAllDay ? ev.summary : `${formatTime(ev.start)} ${ev.summary}`;
     btn.addEventListener("click", () => openModal(ev));
     return btn;
   }
 }
 
-// ==========================================================
-// 4. MODAL DE DETALHES DO EVENTO
-// ==========================================================
 function openModal(ev) {
   currentModalEvent = ev;
-
   modalTitleEl.textContent = ev.summary;
   modalDateEl.textContent = formatEventDateRange(ev);
   modalLocationEl.textContent = ev.location ? `Local: ${ev.location}` : "";
   modalDescriptionEl.textContent = ev.description || "";
-
-  // Funcionalidade 2: só mostra a secao de lembrete se o titulo contiver SS1..SS9
   const isSessionEvent = SESSION_PATTERN.test(ev.summary || "");
   if (isSessionEvent) {
     modalIsNewClientCheckbox.checked = true;
@@ -335,7 +253,6 @@ function openModal(ev) {
   } else {
     modalReminderSection.classList.add("hidden");
   }
-
   hideCopyFeedback();
   modalEl.classList.remove("hidden");
 }
@@ -345,9 +262,6 @@ function closeModal() {
   currentModalEvent = null;
 }
 
-// ==========================================================
-// UTILITARIOS DE FORMATACAO (calendario)
-// ==========================================================
 function formatTime(date) {
   return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
@@ -355,26 +269,14 @@ function formatTime(date) {
 function formatEventDateRange(ev) {
   const dateOptions = { day: "2-digit", month: "long", year: "numeric" };
   const startDateStr = ev.start.toLocaleDateString("pt-BR", dateOptions);
-
-  if (ev.isAllDay) {
-    return `${startDateStr} (dia inteiro)`;
-  }
-
+  if (ev.isAllDay) return `${startDateStr} (dia inteiro)`;
   const endDateStr = ev.end.toLocaleDateString("pt-BR", dateOptions);
   const startTimeStr = formatTime(ev.start);
   const endTimeStr = formatTime(ev.end);
-
-  if (startDateStr === endDateStr) {
-    return `${startDateStr}, ${startTimeStr} - ${endTimeStr}`;
-  }
+  if (startDateStr === endDateStr) return `${startDateStr}, ${startTimeStr} - ${endTimeStr}`;
   return `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`;
 }
 
-// ==========================================================
-// FUNCIONALIDADE 1: TEXTO DE BOAS-VINDAS PARA WHATSAPP
-// (equivalente a sendWelcomeEmail / getWelcomeEmailAsText do Code.gs,
-// porem sem enviar e-mail: apenas copia o texto para a area de transferencia)
-// ==========================================================
 function buildWelcomeWhatsappText() {
   return (
     "Olá! Agradeço pelo seu contato e pelo interesse em conhecer o *Creighton Model System (CrMS)*.\n\n" +
@@ -399,42 +301,26 @@ async function handleCopyWelcomeText() {
   flashButtonFeedback(welcomeWhatsappBtn, "✅ Copiado!");
 }
 
-// ==========================================================
-// FUNCIONALIDADE 2: TEXTO DE LEMBRETE DE ENCONTRO PARA WHATSAPP
-// (equivalente a sendReminderEmail / getReminderEmailAsText do Code.gs,
-// porem sem enviar e-mail: apenas copia o texto para a area de transferencia)
-// ==========================================================
-
-// Extrai o codigo da sessao (SS1..SS9) a partir do titulo do evento.
 function extractSessionCode(summary) {
   const match = (summary || "").match(SESSION_PATTERN);
   return match ? match[0].toUpperCase() : "";
 }
 
-// Reproduz a formatacao de data/hora em portugues usada no Code.gs original.
 function formatDateTimePtBR(dateObj) {
   const day = dateObj.getDate();
   const month = MONTHS_FULL[dateObj.getMonth()];
   const weekday = WEEKDAYS_FULL[dateObj.getDay()];
   const formattedDate = `${day} de ${month} (${weekday})`;
-
   const hour = dateObj.getHours();
   const minute = dateObj.getMinutes();
   const formattedTime = `${hour}h${minute < 10 ? "0" : ""}${minute}`;
-
   let period = "";
-  if (hour >= 5 && hour < 12) {
-    period = " da manhã";
-  } else if (hour >= 12 && hour < 18) {
-    period = " da tarde";
-  } else {
-    period = " da noite";
-  }
-
+  if (hour >= 5 && hour < 12) period = " da manhã";
+  else if (hour >= 12 && hour < 18) period = " da tarde";
+  else period = " da noite";
   return { formattedDate, finalFormattedTime: formattedTime + period };
 }
 
-// Instrucoes especificas por sessao, identicas as do Code.gs (apenas SS1 e SS2 tem texto extra).
 function getSessionInstructionText(session) {
   if (session === "SS1") {
     return "- *Preencher o formulário antes do encontro*:\n " + SUBSCRIBE_FORM_LINK + "\n" +
@@ -449,52 +335,33 @@ function getSessionInstructionText(session) {
 function buildReminderWhatsappText(ev, isNewClient) {
   const session = extractSessionCode(ev.summary);
   const { formattedDate, finalFormattedTime } = formatDateTimePtBR(ev.start);
-  const price =
-    session === "EI"
-      ? "340,00"
-      : isNewClient
-        ? "230,00"
-        : "220,00";
+  const price = session === "EI" ? "340,00" : isNewClient ? "230,00" : "220,00";
   const instructionText = getSessionInstructionText(session);
-
   let text = `Olá *${extractRecipientName(ev)}*, tudo bem?\n\n`;
   text += "Gostaria de lembrar que o seu próximo encontro de acompanhamento do Método Creighton será:\n\n";
   text += `📅 Data: *${formattedDate}*\n`;
   text += `⏰ Horário: *${finalFormattedTime}*\n`;
   text += "📍 Local: Google Meet\n\n";
   text += "Para que o nosso encontro seja ainda mais proveitoso, peço a sua colaboração no(s) ponto(s) a seguir:\n\n";
-  if (instructionText) {
-    text += instructionText + "\n";
-  }
+  if (instructionText) text += instructionText + "\n";
   text += `- *Realizar o pagamento de R$ ${price} antes do encontro via PIX*\n`;
   text += " 🔑 Chave PIX: *crmsraul@gmail.com*\n\n";
   text += "Agradeço desde já a sua atenção e empenho no acompanhamento.\nSerá um prazer encontrá-la em breve!\n\n";
   text += "Atenciosamente,\nRaul F. Miranda, FCP";
-
   return text;
 }
 
-// O iCal nao traz o nome do paciente separadamente; tenta extrair do titulo
-// removendo o codigo da sessao (mesmo quando entre parenteses/colchetes/chaves),
-// e mantem apenas os DOIS PRIMEIROS nomes do que restar.
 function extractRecipientName(ev) {
   const sessionRegexGlobal = new RegExp(SESSION_PATTERN.source, "giu");
-
   const withoutSession = (ev.summary || "")
     .replace(/[\(\[\{]\s*(?:SS[1-9]|EI)\s*[\)\]\}]/giu, " ")
     .replace(sessionRegexGlobal, " ")
     .replace(/[-–—:()\[\]{}]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-
   if (!withoutSession) return "[NOME]";
-
   const particles = new Set(["de", "da", "do", "dos", "das", "e"]);
-  return withoutSession
-    .split(" ")
-    .filter((p) => !particles.has(p.toLowerCase()))
-    .slice(0, 2)
-    .join(" ");
+  return withoutSession.split(" ").filter((p) => !particles.has(p.toLowerCase())).slice(0, 2).join(" ");
 }
 
 async function handleCopyReminderText() {
@@ -506,138 +373,72 @@ async function handleCopyReminderText() {
   showCopyFeedback();
 }
 
-// ==========================================================
-// FUNCIONALIDADE 3: SUGESTAO DE HORARIOS VAZIOS PARA WHATSAPP
-//
-// Regras de negocio:
-// - So considera dias de segunda (1), quarta (3) ou sexta-feira (5).
-// - So considera horarios de INICIO possiveis: 10h, 14h ou 16h.
-// - O slot verificado tem sempre 2 horas de duracao (inicio -> inicio+2h).
-// - O slot [inicio, inicio+2h) precisa estar livre, ou seja, nao pode
-//   sobrepor NENHUM evento existente na agenda.
-// - So sugere datas a partir de AMANHA (nunca no dia atual).
-// - Gera as 3 primeiras sugestoes encontradas, na ordem cronologica.
-// ==========================================================
-
-// Verifica se o intervalo [slotStart, slotEnd) tem alguma sobreposicao com
-// algum evento existente. Eventos de dia inteiro (isAllDay) tambem bloqueiam
-// o dia inteiro, para evitar sugerir horarios em dias com compromissos ja
-// marcados como "dia todo".
 function isSlotFree(slotStart, slotEnd, events) {
   return !events.some((ev) => {
     if (ev.isAllDay) {
-      // Bloqueia o dia inteiro do evento all-day se a data coincidir com o slot.
-      return (
-        ev.start.getFullYear() === slotStart.getFullYear() &&
+      return ev.start.getFullYear() === slotStart.getFullYear() &&
         ev.start.getMonth() === slotStart.getMonth() &&
-        ev.start.getDate() === slotStart.getDate()
-      );
+        ev.start.getDate() === slotStart.getDate();
     }
-    // Sobreposicao classica de intervalos: [a, b) x [c, d)
     return slotStart < ev.end && slotEnd > ev.start;
   });
 }
 
-// ==========================================================
-// FUNCIONALIDADE 3: SUGESTAO DE HORARIOS VAZIOS PARA WHATSAPP
-// (VERSAO ATUALIZADA - com diversidade entre as sugestoes)
-//
-// Regras de negocio (mantidas):
-// - So considera dias de segunda (1), quarta (3) ou sexta-feira (5).
-// - So considera horarios de INICIO possiveis: 10h, 14h ou 16h.
-// - O slot verificado tem sempre 2 horas de duracao (inicio -> inicio+2h).
-// - O slot [inicio, inicio+2h) precisa estar livre, ou seja, nao pode
-//   sobrepor NENHUM evento existente na agenda.
-// - So sugere datas a partir de AMANHA (nunca no dia atual).
-//
-// Regra de negocio (NOVA):
-// - As sugestoes retornadas nunca repetem o dia da semana entre si.
-// - As sugestoes retornadas nunca repetem o horario de inicio entre si.
-//   Ex.: se a 1a sugestao cair numa segunda-feira as 10h, a 2a sugestao
-//   nao pode ser segunda-feira (nenhum horario) nem as 10h (nenhum dia).
-// ==========================================================
-
+// Sugere horarios livres com diversidade de dia e horario de inicio
 function findAvailableSlots(events, maxResults) {
   const results = [];
   const usedWeekdays = new Set();
   const usedStartHours = new Set();
   const now = new Date();
-
-  // Comeca a busca a partir de amanha (dia atual nunca e sugerido).
   const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   cursor.setDate(cursor.getDate() + 1);
 
-  // --- PASSO 1: busca priorizando diversidade total (dia e horario distintos) ---
+  // Passo 1: busca priorizando dia e horario distintos
   for (let dayOffset = 0; dayOffset < SUGGEST_SEARCH_WINDOW_DAYS && results.length < maxResults; dayOffset++) {
     const day = new Date(cursor);
     day.setDate(cursor.getDate() + dayOffset);
-
     const weekday = day.getDay();
     if (!SUGGEST_ALLOWED_WEEKDAYS.includes(weekday)) continue;
-
-    // Ja existe uma sugestao nesse mesmo dia da semana: pula o dia inteiro
-    // para garantir que os dias sugeridos sejam sempre distintos.
     if (usedWeekdays.has(weekday)) continue;
-
     for (const startHour of SUGGEST_ALLOWED_START_HOURS) {
       if (results.length >= maxResults) break;
-
-      // Ja existe uma sugestao nesse mesmo horario de inicio: pula o horario
-      // para garantir que os horarios sugeridos sejam sempre distintos.
       if (usedStartHours.has(startHour)) continue;
-
       const slotStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), startHour, 0, 0, 0);
       const slotEnd = new Date(slotStart);
       slotEnd.setHours(slotEnd.getHours() + SUGGEST_SLOT_DURATION_HOURS);
-
       if (isSlotFree(slotStart, slotEnd, events)) {
         results.push({ start: slotStart, end: slotEnd });
         usedWeekdays.add(weekday);
         usedStartHours.add(startHour);
-        // So um slot por dia (o dia ja foi "consumido" para novas sugestoes).
         break;
       }
     }
   }
 
-  // --- PASSO 2 (fallback): se a agenda estiver muito congestionada e nao for
-  // possivel juntar maxResults sugestoes 100% distintas dentro da janela de
-  // busca, completa com os proximos slots livres disponiveis, mesmo que
-  // repitam dia da semana ou horario, para nunca deixar de sugerir horarios.
+  // Passo 2 (fallback): completa com slots livres mesmo repetindo dia/horario
   if (results.length < maxResults) {
     const usedKeys = new Set(results.map((s) => s.start.getTime()));
-
     for (let dayOffset = 0; dayOffset < SUGGEST_SEARCH_WINDOW_DAYS && results.length < maxResults; dayOffset++) {
       const day = new Date(cursor);
       day.setDate(cursor.getDate() + dayOffset);
-
       if (!SUGGEST_ALLOWED_WEEKDAYS.includes(day.getDay())) continue;
-
       for (const startHour of SUGGEST_ALLOWED_START_HOURS) {
         if (results.length >= maxResults) break;
-
         const slotStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), startHour, 0, 0, 0);
         if (usedKeys.has(slotStart.getTime())) continue;
-
         const slotEnd = new Date(slotStart);
         slotEnd.setHours(slotEnd.getHours() + SUGGEST_SLOT_DURATION_HOURS);
-
         if (isSlotFree(slotStart, slotEnd, events)) {
           results.push({ start: slotStart, end: slotEnd });
           usedKeys.add(slotStart.getTime());
         }
       }
     }
-
-    // Garante ordem cronologica final, ja que o passo 2 pode inserir slots
-    // "fora de ordem" em relacao aos do passo 1.
     results.sort((a, b) => a.start - b.start);
   }
-
   return results;
 }
 
-// Formata uma sugestao de horario no padrao "segunda-feira, 24 de agosto, das 10h às 12h".
 function formatSlotSuggestion(slot) {
   const weekday = WEEKDAYS_FULL[slot.start.getDay()];
   const day = slot.start.getDate();
@@ -649,20 +450,16 @@ function formatSlotSuggestion(slot) {
 
 function buildSuggestedSlotsWhatsappText(events) {
   const slots = findAvailableSlots(events, SUGGEST_COUNT);
-
   let text = "Para agendarmos o seu próximo encontro, você teria alguma preferência de horário (manhã ou tarde) e de dia da semana? 😊\n\n";
-
   if (slots.length === 0) {
     text += "No momento não encontrei horários vazios de 2h disponíveis nas segundas, quartas ou sextas (10h, 14h ou 16h) dentro dos próximos dias. Posso verificar outras datas, se preferir.";
     return text;
   }
-
   text += "Seguem algumas opções de horários que estão livres na minha agenda:\n\n";
   slots.forEach((slot, index) => {
     text += `${index + 1}️⃣ ${formatSlotSuggestion(slot)}\n`;
   });
   text += "\nFico no aguardo do seu retorno!";
-
   return text;
 }
 
@@ -674,55 +471,39 @@ async function handleCopySuggestedSlotsText() {
 
 // ==========================================================
 // FUNCIONALIDADE 4: FATURAMENTO BRUTO MENSAL / ANUAL
-//
-// Regras de negocio:
-// - Titulo iniciado por "(EI)"            => R$ 340,00 no mes do evento.
-// - Titulo iniciado por "(SS1)".."(SS8)"  => R$ 230,00 no mes do evento.
-// - Periodo: ano atual + 1 ano anterior (ex.: 2026 e 2025).
-// - "Recebido ate hoje": eventos com inicio <= agora.
-// - "A receber": eventos futuros ainda presentes na agenda.
-// - "Previsao fim do mes": recebido + a receber.
-// - Tabela oculta por padrao; botao de toggle para mostrar/ocultar.
 // ==========================================================
 const REVENUE_RULES = [
-  { pattern: /^\s*\(\s*EI\s*\)/i, value: 340 },
-  { pattern: /^\s*\(\s*SS[1-8]\s*\)/i, value: 230 }
+  { key: "ei", pattern: /^\s*\(\s*EI\s*\)/i, value: 340 },
+  { key: "ss", pattern: /^\s*\(\s*SS[1-8]\s*\)/i, value: 230 }
 ];
-
 const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
-function getEventValue(summary) {
-  const rule = REVENUE_RULES.find((r) => r.pattern.test(summary || ""));
-  return rule ? rule.value : 0;
+function getEventRule(summary) {
+  return REVENUE_RULES.find((r) => r.pattern.test(summary || "")) || null;
 }
 
-// Parse dedicado ao faturamento: independe da janela de 2 meses do calendario.
+// Parse dedicado ao faturamento: ano anterior + ano atual, com expansao de RRULE
 function parseEventsForRevenue(icsText, rangeStart, rangeEnd) {
   const comp = new ICAL.Component(ICAL.parse(icsText));
   const vevents = comp.getAllSubcomponents("vevent");
   const startI = ICAL.Time.fromJSDate(rangeStart, false);
   const endI = ICAL.Time.fromJSDate(rangeEnd, false);
   const out = [];
-
   // Excecoes de recorrencia (RECURRENCE-ID) substituem a ocorrencia original
   const overridden = new Set();
   vevents.forEach((v) => {
     try {
       const rid = v.getFirstPropertyValue("recurrence-id");
       if (rid) overridden.add(v.getFirstPropertyValue("uid") + "|" + rid.toJSDate().getTime());
-    } catch (e) {
-      // ignora excecao malformada
-    }
+    } catch (e) {}
   });
 
   vevents.forEach((v) => {
     try {
       const status = (v.getFirstPropertyValue("status") || "").toString().toUpperCase();
       if (status === "CANCELLED") return;
-
       const event = new ICAL.Event(v);
       const isException = !!v.getFirstPropertyValue("recurrence-id");
-
       if (event.isRecurring() && !isException) {
         const expand = new ICAL.RecurExpansion({
           component: v,
@@ -748,10 +529,10 @@ function parseEventsForRevenue(icsText, rangeStart, rangeEnd) {
       console.warn("Evento ignorado no calculo de faturamento:", err);
     }
   });
-
   return out;
 }
 
+// Calcula faturamento por mes, separando eventos EI (R$ 340) e SS (R$ 230)
 function computeRevenue(icsText, now) {
   const year = now.getFullYear();
   const events = parseEventsForRevenue(
@@ -759,102 +540,92 @@ function computeRevenue(icsText, now) {
     new Date(year - 1, 0, 1),
     new Date(year, 11, 31, 23, 59, 59)
   );
-
   const data = {};
   [year - 1, year].forEach((y) => {
-    data[y] = Array.from({ length: 12 }, () => ({ received: 0, upcoming: 0, count: 0 }));
+    data[y] = Array.from({ length: 12 }, () => ({
+      received: 0, upcoming: 0, countEI: 0, countSS: 0
+    }));
   });
 
   events.forEach((ev) => {
-    const value = getEventValue(ev.summary);
-    if (!value) return;
+    const rule = getEventRule(ev.summary);
+    if (!rule) return;
     const yearData = data[ev.start.getFullYear()];
     if (!yearData) return;
     const cell = yearData[ev.start.getMonth()];
-    cell.count++;
-    if (ev.start <= now) {
-      cell.received += value;
-    } else {
-      cell.upcoming += value;
-    }
+    if (rule.key === "ei") cell.countEI++;
+    else cell.countSS++;
+    if (ev.start <= now) cell.received += rule.value;
+    else cell.upcoming += rule.value;
   });
-
   return data;
 }
 
+function formatEventCounts(ei, ss) {
+  return `${ei} EI · ${ss} SS`;
+}
+
+// Renderiza a tabela de faturamento abaixo do calendario
 function renderRevenueSection(icsText) {
   const now = new Date();
   const data = computeRevenue(icsText, now);
-
   const previous = document.getElementById("revenue-section");
   if (previous) previous.remove();
 
   const section = document.createElement("section");
   section.id = "revenue-section";
   section.className = "revenue-section";
-
   const toggleBtn = document.createElement("button");
   toggleBtn.type = "button";
   toggleBtn.className = "revenue-toggle";
   toggleBtn.setAttribute("aria-expanded", "false");
   toggleBtn.textContent = "💰 Mostrar faturamento";
 
-  // Oculta por padrao
   const wrapper = document.createElement("div");
   wrapper.className = "revenue-wrapper hidden";
-
   const table = document.createElement("table");
   table.className = "revenue-table";
   table.innerHTML =
     "<thead><tr>" +
-    "<th>Mês</th><th>Eventos</th><th>Recebido até hoje</th>" +
+    "<th>Mês</th><th title=\"EI = R$ 340 · SS = R$ 230\">Eventos (EI · SS)</th><th>Recebido até hoje</th>" +
     "<th>A receber</th><th>Previsão fim do mês</th>" +
     "</tr></thead>";
-
   const tbody = document.createElement("tbody");
 
-  Object.keys(data)
-    .map(Number)
-    .sort((a, b) => b - a)
-    .forEach((year) => {
-      const totals = { received: 0, upcoming: 0, count: 0 };
-
-      data[year].forEach((m, idx) => {
-        totals.received += m.received;
-        totals.upcoming += m.upcoming;
-        totals.count += m.count;
-
-        const tr = document.createElement("tr");
-        if (year === now.getFullYear() && idx === now.getMonth()) {
-          tr.classList.add("current");
-        }
-        tr.innerHTML =
-          `<td>${MONTHS_FULL[idx]} ${year}</td>` +
-          `<td>${m.count}</td>` +
-          `<td>${brl.format(m.received)}</td>` +
-          `<td>${brl.format(m.upcoming)}</td>` +
-          `<td>${brl.format(m.received + m.upcoming)}</td>`;
-        tbody.appendChild(tr);
-      });
-
-      const totalTr = document.createElement("tr");
-      totalTr.className = "revenue-year-total";
-      totalTr.innerHTML =
-        `<td>Total ${year}</td>` +
-        `<td>${totals.count}</td>` +
-        `<td>${brl.format(totals.received)}</td>` +
-        `<td>${brl.format(totals.upcoming)}</td>` +
-        `<td>${brl.format(totals.received + totals.upcoming)}</td>`;
-      tbody.appendChild(totalTr);
+  Object.keys(data).map(Number).sort((a, b) => b - a).forEach((year) => {
+    const totals = { received: 0, upcoming: 0, countEI: 0, countSS: 0 };
+    data[year].forEach((m, idx) => {
+      totals.received += m.received;
+      totals.upcoming += m.upcoming;
+      totals.countEI += m.countEI;
+      totals.countSS += m.countSS;
+      const tr = document.createElement("tr");
+      if (year === now.getFullYear() && idx === now.getMonth()) tr.classList.add("current");
+      tr.innerHTML =
+        `<td>${MONTHS_FULL[idx]} de ${year}</td>` +
+        `<td>${formatEventCounts(m.countEI, m.countSS)}</td>` +
+        `<td>${brl.format(m.received)}</td>` +
+        `<td>${brl.format(m.upcoming)}</td>` +
+        `<td>${brl.format(m.received + m.upcoming)}</td>`;
+      tbody.appendChild(tr);
     });
+    const totalTr = document.createElement("tr");
+    totalTr.className = "revenue-year-total";
+    totalTr.innerHTML =
+      `<td>Total ${year}</td>` +
+      `<td>${formatEventCounts(totals.countEI, totals.countSS)}</td>` +
+      `<td>${brl.format(totals.received)}</td>` +
+      `<td>${brl.format(totals.upcoming)}</td>` +
+      `<td>${brl.format(totals.received + totals.upcoming)}</td>`;
+    tbody.appendChild(totalTr);
+  });
 
   table.appendChild(tbody);
   wrapper.appendChild(table);
-
   const note = document.createElement("p");
   note.className = "revenue-note";
   note.textContent =
-    "(EI) = R$ 340,00 · (SS1) a (SS8) = R$ 230,00. " +
+    "EI = (EI), R$ 340,00 · SS = (SS1) a (SS8), R$ 230,00. " +
     "\"Recebido\" = eventos até agora; \"A receber\" = eventos futuros ainda na agenda; " +
     "\"Previsão\" = soma dos dois.";
   wrapper.appendChild(note);
@@ -867,20 +638,13 @@ function renderRevenueSection(icsText) {
 
   section.appendChild(toggleBtn);
   section.appendChild(wrapper);
-
-  // Logo abaixo do calendario de dois meses
   containerEl.insertAdjacentElement("afterend", section);
 }
 
-
-// ==========================================================
-// UTILITARIOS DE CLIPBOARD E FEEDBACK VISUAL
-// ==========================================================
 async function copyTextToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
   } catch (err) {
-    // Fallback para navegadores/contextos sem suporte a Clipboard API (ex.: http nao seguro)
     const textarea = document.createElement("textarea");
     textarea.value = text;
     textarea.style.position = "fixed";
