@@ -40,6 +40,8 @@ const modalIsNewClientCheckbox = document.getElementById("modal-is-new-client");
 const modalCopyReminderBtn = document.getElementById("modal-copy-reminder-btn");
 const modalCopyFeedback = document.getElementById("modal-copy-feedback");
 const suggestSlotsBtn = document.getElementById("suggest-slots-btn");
+const menuToggleBtn = document.getElementById("menu-whatsapp-toggle");
+const menuListEl = document.getElementById("menu-whatsapp-list");
 
 let currentModalEvent = null;
 let allLoadedEvents = [];
@@ -55,6 +57,29 @@ document.addEventListener("keydown", (e) => {
 welcomeWhatsappBtn.addEventListener("click", handleCopyWelcomeText);
 modalCopyReminderBtn.addEventListener("click", handleCopyReminderText);
 suggestSlotsBtn.addEventListener("click", handleCopySuggestedSlotsText);
+
+// ==========================================================
+// MENU DO TOPO (dropdown "Mensagens WhatsApp")
+// ==========================================================
+function setMenuOpen(open) {
+  menuListEl.classList.toggle("hidden", !open);
+  menuToggleBtn.setAttribute("aria-expanded", String(open));
+}
+
+menuToggleBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  setMenuOpen(menuListEl.classList.contains("hidden"));
+});
+document.addEventListener("click", (e) => {
+  if (!menuListEl.contains(e.target)) setMenuOpen(false);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") setMenuOpen(false);
+});
+// Mantem o menu aberto ate o "Copiado!" (1,6 s) terminar
+menuListEl.addEventListener("click", (e) => {
+  if (e.target.closest(".menu-item")) setTimeout(() => setMenuOpen(false), 1700);
+});
 
 async function init() {
   try {

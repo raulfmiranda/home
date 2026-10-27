@@ -5,33 +5,41 @@
   <meta charset="UTF-8" />
   <script src="auth.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minha Agenda</title>
+  <title>Agenda CrMS</title>
   <link rel="stylesheet" href="agenda.css" />
 </head>
 
 <body>
   <div id="app">
     <header class="app-header">
-      <h1>Minha Agenda</h1>
+      <div class="topbar">
+        <h1>Agenda CrMS</h1>
 
-      <!-- Funcionalidade 1: E-mail de Boas-Vindas versão WhatsApp -->
-      <button id="welcome-whatsapp-btn" class="welcome-btn" type="button">
-        📋 Copiar texto de Boas-Vindas WhatsApp
-      </button>
+        <nav class="menu" aria-label="Menu principal">
+          <a class="menu-link" href="agenda.html" aria-current="page">📅 Agenda</a>
 
-      <!-- Funcionalidade 3: Sugestão de horários vazios versão WhatsApp -->
-      <button id="suggest-slots-btn" class="welcome-btn suggest-btn" type="button">
-        🗓️ Copiar Sugestão de Horários WhatsApp
-      </button>
+          <div class="menu-dropdown">
+            <button id="menu-whatsapp-toggle" class="menu-toggle" type="button"
+                    aria-haspopup="true" aria-expanded="false">
+              💬 Mensagens WhatsApp ▾
+            </button>
+            <div id="menu-whatsapp-list" class="menu-list hidden">
+              <button id="welcome-whatsapp-btn" class="menu-item" type="button">
+                📋 Copiar texto de Boas-Vindas WhatsApp
+              </button>
+              <button id="suggest-slots-btn" class="menu-item" type="button">
+                🗓️ Copiar Sugestão de Horários WhatsApp
+              </button>
+            </div>
+          </div>
+        </nav>
+      </div>
 
       <div id="status" class="status">Carregando eventos...</div>
     </header>
 
-    <main id="calendars-container" class="calendars-container">
-      <!-- Os calendarios (mes atual e mes seguinte) serao inseridos aqui via JS -->
-    </main>
+    <main id="calendars-container" class="calendars-container"></main>
 
-    <!-- Modal de detalhes do evento -->
     <div id="event-modal" class="modal hidden">
       <div class="modal-content">
         <button id="modal-close" class="modal-close" aria-label="Fechar">&times;</button>
@@ -40,8 +48,6 @@
         <p id="modal-location" class="modal-detail"></p>
         <p id="modal-description" class="modal-detail"></p>
 
-        <!-- Funcionalidade 2: Lembrete de Encontro de Acompanhamento versão WhatsApp -->
-        <!-- Só aparece quando o evento aberto corresponde a uma sessão SS1..SS9 -->
         <div id="modal-reminder-section" class="modal-reminder-section hidden">
           <label class="modal-checkbox-label">
             <input type="checkbox" id="modal-is-new-client" />
@@ -56,10 +62,8 @@
       </div>
     </div>
 
-    <!-- Versão ES5 transpilada expõe ICAL como variável global, compatível com script tradicional sem type=module -->
     <script src="https://unpkg.com/ical.js@2.2.0/dist/ical.es5.min.cjs"></script>
     <script src="agenda.js"></script>
   </div>
 </body>
-
 </html>

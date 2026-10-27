@@ -11,17 +11,104 @@ body {
   padding: 24px;
 }
 
+/* ==========================================================
+   CABECALHO + MENU
+   ========================================================== */
 .app-header {
   max-width: 1200px;
   margin: 0 auto 24px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  padding: 12px 20px;
+}
+
+.topbar h1 {
+  font-size: 22px;
+  font-weight: 500;
+  color: #1a73e8;
+}
+
+.app-header .status {
+  margin-top: 10px;
   text-align: center;
 }
 
-.app-header h1 {
-  font-size: 28px;
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.menu-link,
+.menu-toggle,
+.menu-item {
+  font: inherit;
+  font-size: 14px;
   font-weight: 500;
+  color: #3c4043;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.menu-link:hover,
+.menu-toggle:hover,
+.menu-item:hover {
+  background: #f1f3f4;
+}
+
+.menu-link[aria-current="page"] {
+  background: #e8f0fe;
   color: #1a73e8;
-  margin-bottom: 8px;
+}
+
+.menu-dropdown {
+  position: relative;
+}
+
+.menu-list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: max-content;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 6px;
+  z-index: 500;
+}
+
+.menu-list.hidden {
+  display: none;
+}
+
+.menu-item {
+  text-align: left;
+  width: 100%;
+  padding: 10px 12px;
+}
+
+.menu-item:disabled {
+  color: #188038;
+  cursor: default;
+  background: #e6f4ea;
 }
 
 .status {
@@ -221,38 +308,6 @@ body {
 }
 
 /* ==========================================================
-   FUNCIONALIDADE 1: Botao de Boas-Vindas (header)
-   ========================================================== */
-.welcome-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #fff;
-  background: #1a73e8;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 20px;
-  margin: 4px 0 12px;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
-}
-
-.welcome-btn:hover {
-  background: #1558b3;
-}
-
-.welcome-btn:active {
-  transform: scale(0.98);
-}
-
-.welcome-btn:disabled {
-  background: #188038;
-  cursor: default;
-}
-
-/* ==========================================================
    FUNCIONALIDADE 2: Secao de lembrete dentro do modal
    ========================================================== */
 .modal-reminder-section {
@@ -333,19 +388,6 @@ body {
 
 .copy-feedback.hidden {
   display: none;
-}
-
-.suggest-btn {
-  background: #9334e6;
-  margin-left: 8px;
-}
-
-.suggest-btn:hover {
-  background: #7a2bc2;
-}
-
-.suggest-btn:disabled {
-  background: #188038;
 }
 
 /* ==========================================================
