@@ -13,12 +13,63 @@
   color: #202124;
 }
 
+/* Menu de seleção do exame */
+.exam-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.exam-tab {
+  padding: 8px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 20px;
+  background: #fff;
+  color: #3c4043;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.exam-tab:hover { background: #f1f3f4; }
+
+.exam-tab[aria-selected="true"] {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.exam-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #202124;
+  margin: 0 0 4px;
+}
+
 .exam-subtitle {
   font-size: 14px;
   color: #5f6368;
   margin-bottom: 20px;
 }
 
+/* Imagem do gráfico */
+.exam-figure {
+  display: block;
+  overflow-x: auto;
+  margin-bottom: 20px;
+  border: 1px solid #e8eaed;
+  border-radius: 8px;
+}
+
+.exam-figure img {
+  display: block;
+  width: 100%;
+  min-width: 640px;
+  height: auto;
+}
+
+/* Questões */
 .question {
   border: 1px solid #e8eaed;
   border-left: 4px solid #dadce0;
@@ -41,8 +92,28 @@
   line-height: 1.5;
 }
 
+/* Subgrupos (fértil/infértil, adesivo, sim/não, quando) */
+.sub-question {
+  border: 0;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+.sub-question legend {
+  font-size: 14px;
+  font-weight: 400;
+  color: #3c4043;
+  padding: 0;
+}
+
+.sub-question.wrong .answer-option:has(input:checked) {
+  background: #fce8e6;
+  border-color: #d93025;
+}
+
 .answer-options {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 10px;
 }
@@ -67,6 +138,7 @@
   accent-color: #1a73e8;
 }
 
+/* Resultado por questão */
 .question.correct {
   border-left-color: #188038;
   background: #f3faf5;
@@ -86,6 +158,32 @@
 .question.correct .question-feedback { color: #188038; }
 .question.incorrect .question-feedback { color: #d93025; }
 
+/* Consulta da resposta (escondida até clicar) */
+.answer-ref {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.answer-ref summary {
+  cursor: pointer;
+  color: #1a73e8;
+  font-weight: 500;
+}
+
+.answer-ref .answer-text {
+  margin: 8px 0;
+  color: #3c4043;
+}
+
+.answer-ref img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #e8eaed;
+  border-radius: 8px;
+}
+
+/* Aviso, botões e resultado final */
 .exam-warning {
   color: #d93025;
   font-size: 14px;

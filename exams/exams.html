@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <script src="auth.js"></script>
@@ -8,26 +9,16 @@
   <link rel="stylesheet" href="agenda.css" />
   <link rel="stylesheet" href="exams.css" />
 </head>
+
 <body>
   <div id="app">
     <main class="exam-container">
       <h2>Revisão das Observações</h2>
-      <p class="exam-subtitle">Verdadeiro ou Falso</p>
-
-      <form id="exam-form" novalidate>
-        <div id="exam-questions"></div>
-
-        <p id="exam-warning" class="exam-warning hidden" role="alert"></p>
-
-        <div class="exam-actions">
-          <button id="exam-submit" class="copy-btn" type="submit">Corrigir prova</button>
-          <button id="exam-reset" class="exam-reset hidden" type="button">Refazer</button>
-        </div>
-      </form>
-
-      <div id="exam-result" class="exam-result hidden" role="status" aria-live="polite"></div>
+      <nav id="exam-menu" class="exam-menu" role="tablist" aria-label="Escolher exame"></nav>
+      <div id="exam-panels"></div>
     </main>
   </div>
   <script src="exams.js"></script>
 </body>
+
 </html>
