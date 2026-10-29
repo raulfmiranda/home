@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mural de Certificações – Método Creighton</title>
+
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="referrer" content="no-referrer">
+
+    <style>
+        :root {
+            --bg: #f5f3ee;
+            --card: #fff;
+            --ink: #23303a;
+            --muted: #6b7780;
+            --accent: #2f6f62;
+            --accent2: #e8f1ee;
+            --line: #e2ddd2
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.5
+        }
+
+        header {
+            background: var(--accent);
+            color: #fff;
+            padding: 32px 20px;
+            text-align: center
+        }
+
+        header h1 {
+            margin: 0 0 6px;
+            font-size: 1.8rem
+        }
+
+        header p {
+            margin: 0;
+            opacity: .9
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 16px 48px
+        }
+
+        h2 {
+            margin: 32px 0 14px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--line);
+            padding-bottom: 6px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .05);
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            word-break: break-word
+        }
+
+        .meta {
+            font-size: .92rem;
+            color: var(--muted)
+        }
+
+        .meta strong {
+            color: var(--ink)
+        }
+
+        .badge {
+            align-self: flex-start;
+            background: var(--accent2);
+            color: var(--accent);
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 600
+        }
+
+        .preview {
+            position: relative;
+            display: block;
+            height: 200px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #eee;
+            cursor: zoom-in
+        }
+
+        .preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top;
+            display: block
+        }
+
+        .preview::after {
+            content: "Clique para abrir o certificado completo";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(35, 48, 58, .75);
+            color: #fff;
+            font-size: .8rem;
+            text-align: center;
+            padding: 6px;
+            opacity: 0;
+            transition: opacity .2s
+        }
+
+        .preview:hover::after,
+        .preview:focus::after {
+            opacity: 1
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: .9rem;
+            text-decoration: none;
+            align-self: flex-start
+        }
+
+        .btn:hover {
+            opacity: .9
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--line)
+        }
+
+        th,
+        td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--line)
+        }
+
+        th {
+            background: var(--accent2);
+            color: var(--accent);
+            font-size: .85rem;
+            text-transform: uppercase;
+            letter-spacing: .03em
+        }
+
+        tr.ano td {
+            background: #faf8f3;
+            font-weight: 700
+        }
+
+        tr.total td {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700
+        }
+
+        .vazio {
+            color: var(--muted);
+            text-align: center;
+            padding: 24px;
+            background: var(--card);
+            border: 1px dashed var(--line);
+            border-radius: 12px
+        }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: .85rem;
+            padding-bottom: 24px
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="../index.html" style="color:#fff">← Voltar</a>
+        <h1>Mural de Certificações</h1>
+        <p>Formação e atualização profissional – Método Creighton</p>
+    </header>
+
+    <main>
+        <h2>Certificados</h2>
+        <section id="mural" class="grid"></section>
+
+        <h2>Relatório por mês e ano</h2>
+        <section id="relatorio"></section>
+    </main>
+    <footer>Mural e relatório gerados automaticamente a partir dos arquivos da pasta <code>docs/</code>.</footer>
+
+    <script>
+        /* =====================================================================
+           ÚNICO LOCAL QUE VOCÊ EDITA: a lista abaixo.
+           1) Coloque o arquivo (pdf, png, jpg) na pasta "docs".
+           2) Acrescente uma linha com o nome EXATO do arquivo.
+        
+           Padrão do nome:  AAAA-MM-DD_20h_Título do certificado.pdf
+           Se existir uma imagem com o mesmo nome base do PDF, ela vira o preview
+           e o clique abre o PDF.
+           ===================================================================== */
+        const PASTA = "docs";
+
+        const ARQUIVOS = [
+            "2026-07-29_20h_II Jornada Brasileira dos Profissionais FertilityCare.pdf",
+            "2026-07-29_20h_II Jornada Brasileira dos Profissionais FertilityCare.jpg",
+        ];
+        /* ===================================================================== */
+
+        const PADRAO = /^(\d{4})-(\d{2})-(\d{2})[_\s]+(\d+(?:[.,]\d+)?)\s*h[_\s]+(.+)$/i;
+        const EXT_OK = /\.(pdf|png|jpe?g)$/i;
+        const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        const fmtHoras = h => Number.isInteger(h) ? h : h.toLocaleString("pt-BR");
+        const caminho = nome => PASTA + "/" + encodeURIComponent(nome);
+        const dataBR = iso => { if (!iso) return "Data não informada"; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}`; };
+
+        function montar(nomes) {
+            const grupos = {};
+            nomes.filter(n => EXT_OK.test(n)).forEach(n => {
+                const base = n.replace(EXT_OK, "");
+                const g = grupos[base] ??= { base };
+                if (/\.pdf$/i.test(n)) g.pdf = n; else g.img = n;
+            });
+            return Object.values(grupos).map(g => {
+                const m = g.base.match(PADRAO);
+                const item = { pdf: g.pdf, img: g.img };
+                if (m) {
+                    item.data = `${m[1]}-${m[2]}-${m[3]}`;
+                    item.horas = parseFloat(m[4].replace(",", "."));
+                    item.titulo = m[5].replace(/_/g, " ").trim();
+                } else {
+                    item.data = null; item.horas = 0;
+                    item.titulo = g.base.replace(/_/g, " ");
+                }
+                item.abrir = caminho(g.pdf || g.img);
+                return item;
+            }).sort((a, b) => (a.data || "9999").localeCompare(b.data || "9999"));
+        }
+
+        function renderMural(lista) {
+            const el = document.getElementById("mural");
+            if (!lista.length) { el.innerHTML = '<p class="vazio" style="grid-column:1/-1">Nenhum arquivo na lista ARQUIVOS.</p>'; return; }
+            el.innerHTML = lista.map(c => `
+    <article class="card">
+      ${c.img ? `<a class="preview" href="${c.abrir}" target="_blank" rel="noopener noreferrer nofollow" aria-label="Abrir certificado completo: ${esc(c.titulo)}">
+        <img src="${caminho(c.img)}" alt="Preview do certificado: ${esc(c.titulo)}" loading="lazy"></a>` : ""}
+      ${c.horas ? `<span class="badge">${fmtHoras(c.horas)} horas</span>` : ""}
+      <h3>${esc(c.titulo)}</h3>
+      <div class="meta"><strong>Data:</strong> ${dataBR(c.data)}</div>
+      <div class="meta"><strong>Carga horária:</strong> ${c.horas ? fmtHoras(c.horas) + " horas" : "não informada"}</div>
+      <a class="btn" href="${c.abrir}" target="_blank" rel="noopener noreferrer nofollow">Abrir certificado</a>
+    </article>`).join("");
+        }
+
+        function renderRelatorio(lista) {
+            const el = document.getElementById("relatorio");
+            if (!lista.length) { el.innerHTML = '<p class="vazio">Sem dados.</p>'; return; }
+            const anos = {}; const semData = { qtd: 0, horas: 0 };
+            lista.forEach(c => {
+                if (!c.data) { semData.qtd++; semData.horas += c.horas; return; }
+                const [y, m] = c.data.split("-");
+                const a = anos[y] ??= { qtd: 0, horas: 0, meses: {} };
+                const mm = a.meses[m] ??= { qtd: 0, horas: 0 };
+                a.qtd++; a.horas += c.horas; mm.qtd++; mm.horas += c.horas;
+            });
+            let linhas = "", tq = semData.qtd, th = semData.horas;
+            Object.keys(anos).sort().forEach(y => {
+                const a = anos[y]; tq += a.qtd; th += a.horas;
+                linhas += `<tr class="ano"><td>${y}</td><td>${a.qtd}</td><td>${fmtHoras(a.horas)} h</td></tr>`;
+                Object.keys(a.meses).sort().forEach(m => {
+                    const x = a.meses[m];
+                    linhas += `<tr><td>&nbsp;&nbsp;&nbsp;${MESES[+m - 1]} de ${y}</td><td>${x.qtd}</td><td>${fmtHoras(x.horas)} h</td></tr>`;
+                });
+            });
+            if (semData.qtd) linhas += `<tr class="ano"><td>Sem data</td><td>${semData.qtd}</td><td>${fmtHoras(semData.horas)} h</td></tr>`;
+            linhas += `<tr class="total"><td>Total geral</td><td>${tq}</td><td>${fmtHoras(th)} h</td></tr>`;
+            el.innerHTML = `<table><thead><tr><th>Período</th><th>Certificados</th><th>Carga horária</th></tr></thead><tbody>${linhas}</tbody></table>`;
+        }
+
+        const lista = montar(ARQUIVOS);
+        renderMural(lista);
+        renderRelatorio(lista);
+    </script>
+</body>
+
+</html>
