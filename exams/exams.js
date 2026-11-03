@@ -175,7 +175,7 @@ const EXAMS = [
     maxScore: 100,
     image: "infertilidade.jpg",
     imageAlt: "Gráfico de infertilidade com os itens A a L",
-    answersImage: "respostasinfertilidade.jpg",
+    answersImage: "respostasinfertilidade.jpeg",
     answersAlt: "Gabarito de infertilidade",
     items: INFERTILITY_ITEMS
   }
