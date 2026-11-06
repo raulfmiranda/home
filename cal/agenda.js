@@ -501,6 +501,13 @@ const REVENUE_RULES = [
   { key: "ei", pattern: /^\s*\(\s*EI\s*\)/i, value: 340 },
   { key: "ss", pattern: /^\s*\(\s*SS[1-8]\s*\)/i, value: 230 }
 ];
+const IMPORTANT_LINKS = [
+  {
+    label: "Gerador de DAS",
+    url: "https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/Identificacao",
+    cnpj: "69.566.778/0001-69"
+  }
+];
 const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 function getEventRule(summary) {
@@ -520,7 +527,7 @@ function parseEventsForRevenue(icsText, rangeStart, rangeEnd) {
     try {
       const rid = v.getFirstPropertyValue("recurrence-id");
       if (rid) overridden.add(v.getFirstPropertyValue("uid") + "|" + rid.toJSDate().getTime());
-    } catch (e) {}
+    } catch (e) { }
   });
 
   vevents.forEach((v) => {
@@ -590,6 +597,55 @@ function formatEventCounts(ei, ss) {
   return `${ei} EI · ${ss} SS`;
 }
 
+function buildImportantLinksSection() {
+  const box = document.createElement("div");
+  box.className = "important-links";
+
+  const title = document.createElement("h3");
+  title.className = "important-links-title";
+  title.textContent = "🔗 Links importantes";
+  box.appendChild(title);
+
+  const list = document.createElement("ul");
+  list.className = "important-links-list";
+
+  IMPORTANT_LINKS.forEach((item) => {
+    const li = document.createElement("li");
+
+    const a = document.createElement("a");
+    a.href = item.url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = item.label;
+    a.title = "Ao clicar, o CNPJ é copiado automaticamente. Cole-o no campo da Receita.";
+    a.addEventListener("click", () => {
+      copyTextToClipboard(item.cnpj); // não bloqueia a abertura do link
+    });
+    li.appendChild(a);
+
+    if (item.cnpj) {
+      const cnpjSpan = document.createElement("span");
+      cnpjSpan.className = "important-link-cnpj";
+      cnpjSpan.textContent = `CNPJ: ${item.cnpj}`;
+      li.appendChild(cnpjSpan);
+
+      const copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "copy-btn important-link-copy";
+      copyBtn.textContent = "📋 Copiar CNPJ";
+      copyBtn.addEventListener("click", async () => {
+        await copyTextToClipboard(item.cnpj);
+        flashButtonFeedback(copyBtn, "✅ Copiado!");
+      });
+      li.appendChild(copyBtn);
+    }
+    list.appendChild(li);
+  });
+
+  box.appendChild(list);
+  return box;
+}
+
 // Renderiza a tabela de faturamento abaixo do calendario
 function renderRevenueSection(icsText) {
   const now = new Date();
@@ -646,6 +702,7 @@ function renderRevenueSection(icsText) {
   });
 
   table.appendChild(tbody);
+  wrapper.appendChild(buildImportantLinksSection()); // links no topo
   wrapper.appendChild(table);
   const note = document.createElement("p");
   note.className = "revenue-note";
